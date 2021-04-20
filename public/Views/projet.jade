@@ -6,21 +6,24 @@ html(lang="en")
     title= "Mon site"
     body
         if (inscription == 1)
-                    form(action="/register" method="POST") 
-                    p Entrez votre pseudo (4 caractères minimum)
-                    div     
-                        input(name="name_register")
-                    p Entrez votre email 
-                    div     
-                        input(name="email_register")
-                    p Entrez votre mot de passe (6 caractères minimum) 
-                    div     
-                        input(name="password_register")
-                    a(href="/register?register=2")    
-                        input(type="submit" value="S'inscrire")
-                    p Déjà un compte ?
-                    a(href="/register?register=0")    
-                        input(type="submit" value="Connectez vous ici")
+            p Déjà un compte ?
+            a(href="/register?register=0")    
+                input(type="submit" value="Connectez vous ici")
+            form(action="/register" method="POST") 
+            p Entrez votre pseudo (4 caractères minimum)
+            div     
+                input(name="name_register")
+            p Entrez votre email 
+            div     
+                input(name="email_register")
+            p Entrez votre mot de passe (6 caractères minimum) 
+            div     
+                input(name="password_register")
+            p Confirmez votre mot de passe 
+            div     
+                input(name="password_register_confirm")
+            div  
+                input(type="submit" value="S'inscrire")
                         
         if (name) || (session) 
             p= 'Bonjour ' + name + '!'

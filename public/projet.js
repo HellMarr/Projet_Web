@@ -57,7 +57,6 @@ app.post("/login",async(req,res)=> {
       compteur : compteur
       
     }
-    console.log(data.name)
     if ((data.name == useradmin.name || data.name == useradmin.email) && data.password == useradmin.password ){ 
       req.session.user_id = 1
       req.session.name = "Martin"
@@ -78,27 +77,38 @@ app.post("/disconnect",async(req,res)=> {
     res.redirect("/")
 });
 
-app.get("/register",async(req,res)=> {
+app.post("/register",async(req,res)=> {
   const data = {
     inscription : req.query.register,
     name_register : req.body.name_register,
     password_register : req.body.password_register,
     email_register : req.body.email_register,
+    password_register_confirm : req.body.password_register_confirm,
+    //Ajout à la database
   }
+  //On se connecte automatiquement avec nos identifiants
+  console.log("On vient dans le .post")
+  compteur = 0;
+  req.session.user_id = 1
+  req.session.name = "Martin"
+  req.session.password = "Martin"
+  console.log(data.name_register)
+  console.log(data.password_register)
   console.log(data.email_register)
+  res.redirect("/")
+});
+
+app.get("/register",async(req,res)=> {
+  const data = {
+    inscription : req.query.register,
+  }
   if (data.inscription == 1) {
     res.render("projet",data)
-  }
-  if (data.inscription == 2) {
-    console.log("Ajout dans la base de données si tout est bon ");
-    compteur = 0
-    res.redirect("/")
   }
   if (data.inscription == 0) {
     compteur = 0
     res.redirect("/")
   }
-  
 });
 
 app.listen(port,() => {
