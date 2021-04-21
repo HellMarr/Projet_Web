@@ -88,7 +88,6 @@ app.post("/register",async(req,res)=> {
     password_register_confirm : req.body.password_register_confirm,  
   }
   //On se connecte automatiquement avec nos identifiants
-  console.log(data.name_register.length)
   if (data.name_register.length > 3 && data.password_register.length > 5 && data.email_register.match(/[a-z0-9_\-\.]+@[a-z0-9_\-\.]+\.[a-z]+/i) && data.password_register.length == data.password_register_confirm.length){
       compteur = 0
       //Ajout à la database
