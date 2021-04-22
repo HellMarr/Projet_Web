@@ -5,18 +5,20 @@ const {openDb} = require("./db")
 const tablesNames = ["logs","links","coms","votes"]
 
 async function createLogs(db){
-    const insertRequest = await db.prepare("INSERT INTO logs(log_name,pwd) VALUES(?,?)")
+    const insertRequest = await db.prepare("INSERT INTO logs(mail,log_name,pwd) VALUES(?,?,?)")
     const contents = [{
+        mail: "max@max.fr",
         log_name: "max",
         pwd: "max"
     },
       {
+        mail: "bob@bob.fr",
         log_name: "bob",
         pwd: "bob"
       }
     ]
     return await Promise.all(contents.map(logs => {
-      return insertRequest.run(logs.log_name, logs.pwd)
+      return insertRequest.run(logs.mail, logs.log_name, logs.pwd)
     }))
   }
   
@@ -66,6 +68,7 @@ async function createLogs(db){
     const logs = db.run(`
       CREATE TABLE IF NOT EXISTS logs(
         log_id INTEGER PRIMARY KEY,
+        mail varchar(255),
         log_name varchar(255),
         pwd varchar(255)
       )

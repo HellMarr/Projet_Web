@@ -58,15 +58,29 @@ app.post("/login",async(req,res)=> {
       compteur : compteur
       
     }
-    if ((data.name == useradmin.name || data.name == useradmin.email) && data.password == useradmin.password ){ 
-      req.session.user_id = 1
-      req.session.name = "Martin"
-      req.session.password = "Martin"
+    
+    const db = await openDb()
+    const obj_pwd = await db.all(`
+      SELECT pwd FROM logs
+      WHERE log_name = ? OR mail = ?
+    `,[data.name, data.name])
+
+    if (obj_pwd.length===0) {
+      compteur += 1
       res.redirect("/")
     }
-    else {
-      compteur = compteur + 1 ;
-      res.redirect("/")
+
+    for (let i=0; i < obj_pwd.length; i++) {  //Boucle for pour anticiper un problème de même pseudo pour des utilisateurs différents
+      if (data.password !== obj_pwd[i].pwd) {
+        compteur += 1
+        res.redirect("/")
+    }
+      else if (data.password === obj_pwd[i].pwd) {
+        req.session.user_id = 1
+        req.session.name = data.name
+        req.session.password = data.password
+        res.redirect("/")
+    }
     }
 });
 
@@ -88,13 +102,34 @@ app.post("/register",async(req,res)=> {
     password_register_confirm : req.body.password_register_confirm,  
   }
   //On se connecte automatiquement avec nos identifiants
-  if (data.name_register.length > 3 && data.password_register.length > 5 && data.email_register.match(/[a-z0-9_\-\.]+@[a-z0-9_\-\.]+\.[a-z]+/i) && data.password_register.length == data.password_register_confirm.length){
+  if (data.name_register.length > 3 && data.password_register.length > 5 && data.email_register.match(/[a-z0-9_\-\.]+@[a-z0-9_\-\.]+\.[a-z]+/i) && data.password_register == data.password_register_confirm){
       compteur = 0
       //Ajout à la database
       req.session.user_id = 1
-      req.session.name = "Martin"
-      req.session.password = "Martin"
-      res.redirect("/")
+
+      const db = await openDb()
+      const mails = await db.all(`
+        SELECT mail FROM logs
+      `)
+
+      var valide_mail = 0
+      for (let i = 0; i < mails.length; i++) {
+        if (data.email_register !== mails[i].mail) {    //Sert à vérifier que le mail n'est pas déjà utilisé
+           valide_mail += 1
+        }
+      }
+
+      if (valide_mail === mails.length) {               //Choix de mail valide 
+        await db.run(`
+          INSERT INTO logs(mail, log_name, pwd) VALUES(?,?,?)
+        `,[data.email_register, data.name_register, data.password_register])
+
+        res.redirect("/")
+      }
+
+      else{                                             //Tentative d'inscription avec un mail déjà utilisé
+        res.redirect("/register?register=1&state=5")
+      }
   }
   else if (data.name_register.length <= 3){
       res.redirect("/register?register=1&state=1")
@@ -105,7 +140,7 @@ app.post("/register",async(req,res)=> {
   else if (data.password_register.length <= 5){
     res.redirect("/register?register=1&state=3")
   }
-  else if (data.password_register.length != data.password_register_confirm.length){
+  else if (data.password_register != data.password_register_confirm){
     res.redirect("/register?register=1&state=4")
   }
 });

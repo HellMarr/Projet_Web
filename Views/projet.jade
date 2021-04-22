@@ -29,6 +29,8 @@ html(lang="en")
                                     input(name="email_register")
                                 if (etat == 2)
                                     p.text-danger Adresse e-mail non valide, réessayez.
+                                if (etat == 5)
+                                    p.text-danger Adresse e-mail déjà utilisée, réessayez.
                                 p Entrez votre mot de passe (6 caractères minimum) 
                                 div  
                                     input(type = "password" ,name="password_register")
