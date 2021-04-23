@@ -10,80 +10,118 @@ html(lang="en")
     meta( name='description', content='Baking Bootstrap Snippets with Jade' )
     //- Bootswatch Theme
     link(href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/flatly/bootstrap.min.css", rel="stylesheet")
+    //-link(rel='stylesheet' href='fontawesome-free-5.15.3-web/css/all.css')
     body
-        if (inscription == 1)
-             .row
-                .col-md-4.col-sm-6.col-xs-12
-                .col-md-4.col-sm-6.col-xs-12
+        .container.overflow-hidden(style='background-color:#a5c6d8;')
+            //-p.fa.fa-reddit(aria-hidden='true')
+            p.text-center 
+                a(href= "/")  
+                    img.img-fluid(src='https://upload.wikimedia.org/wikipedia/fr/thumb/5/58/Reddit_logo_new.svg/1200px-Reddit_logo_new.svg.png' alt='Responsive image' style='height: 100px')
+            b.font-weight-bold Matéo Lopez et Martin Héliot
+            br
+            if (inscription == 1)
+                .row
+                    .col-md-4.col-sm-6.col-xs-12
+                        .panel.panel-default
+                                .panel-heading.text-center  Inscription
+                                .panel-body
+                                    form(action="/register" method="POST") 
+                                        p Entrez votre pseudo (4 caractères minimum)
+                                        div  
+                                            input(name="name_register")
+                                        if (etat == 1)
+                                            p.text-danger Nom d'utilisateur trop court, réessayez.
+                                        p Entrez votre email 
+                                        div   
+                                            input(name="email_register")
+                                        if (etat == 2)
+                                            p.text-danger Adresse e-mail non valide, réessayez.
+                                        if (etat == 5)
+                                            p.text-danger Adresse e-mail déjà utilisée, réessayez.
+                                        p Entrez votre mot de passe (6 caractères minimum) 
+                                        div  
+                                            input(type = "password" ,name="password_register")
+                                        if (etat == 3)
+                                            p.text-danger Mot de passe trop court, réessayez.  
+                                        p Confirmez votre mot de passe 
+                                        div     
+                                            input(type = "password" ,name="password_register_confirm")
+                                        if (etat == 4)
+                                            p.text-danger Le mot de passe et sa confirmation sont différents, réessayez.
+                                        div  
+                                            input(type="submit" value="S'inscrire")
+                                            img.img-fluid(src='https://media1.giphy.com/media/iFgzUCWgxj7B22ik2K/source.gif' alt='Responsive image' style='height: 25px')
+                    .col-md-4.col-sm-6.col-xs-12
+                    .col-md-4.col-sm-6.col-xs-12
+                        .panel.panel-default
+                            .panel-heading.text-center  Connexion
+                            .panel-body
+                                p Déjà un compte ?
+                                a(href="/register?register=0")    
+                                    input(type="submit" value="Connectez vous ici")
+                                    img.img-fluid(src='https://media1.giphy.com/media/iFgzUCWgxj7B22ik2K/source.gif' alt='Responsive image' style='height: 25px')
+                            
+            if (name) || (session)
+                if (!sujet)
+                    h2.text-center En tendance aujourd'hui
+                    br
+                    .row
+                        .col-md-4.col-sm-6.col-xs-12
+                            p.text-center
+                                a(href= "/?sujet=football")  
+                                    img.img-fluid(src='https://france3-regions.francetvinfo.fr/image/P8RYW7bB6313ehd3hsPJ6N7MnOM/600x400/regions/2020/08/06/5f2bd3cea9924_maxstockworld407714-4954002.jpg' alt='Responsive image' style='height: 100px')
+                        .col-md-4.col-sm-6.col-xs-12
+                            p.text-center
+                                a(href= "/?sujet=ouighours")  
+                                    img.img-fluid(src='https://s.france24.com/media/display/44a9e876-0fae-11e9-a8e3-005056a964fe/w:1280/p:4x3/ouighours.jpg' alt='Responsive image' style='height: 100px')
+                        .col-md-4.col-sm-6.col-xs-12
+                            p.text-center
+                                a(href= "/?sujet=politique")  
+                                    img.img-fluid(src='https://d3i6fh83elv35t.cloudfront.net/static/2020/03/2020-03-25T140713Z_395594442_RC22RF98OOTJ_RTRMADP_3_HEALTH-CORONAVIRUS-RUSSIA-PUTIN-1024x695.jpg' alt='Responsive image' style='height: 100px')
                     .panel.panel-default
-                        .panel-heading Inscription
+                        .panel-heading.text-center  section résumant les nouveautés qu’il y a eu depuis la dernière connexion pour les liens ou on avait interagi dans les dernière 24h. 
                         .panel-body
-                            form(action="/register" method="POST") 
-                                p Entrez votre pseudo (4 caractères minimum)
-                                div  
-                                    input(name="name_register")
-                                if (etat == 1)
-                                    p.text-danger Nom d'utilisateur trop court, réessayez.
-                                p Entrez votre email 
-                                div   
-                                    input(name="email_register")
-                                if (etat == 2)
-                                    p.text-danger Adresse e-mail non valide, réessayez.
-                                if (etat == 5)
-                                    p.text-danger Adresse e-mail déjà utilisée, réessayez.
-                                p Entrez votre mot de passe (6 caractères minimum) 
-                                div  
-                                    input(type = "password" ,name="password_register")
-                                if (etat == 3)
-                                    p.text-danger Mot de passe trop court, réessayez.  
-                                p Confirmez votre mot de passe 
-                                div     
-                                    input(type = "password" ,name="password_register_confirm")
-                                if (etat == 4)
-                                    p.text-danger Le mot de passe et sa confirmation sont différents, réessayez.
-                                div  
-                                    input(type="submit" value="S'inscrire")
-                .col-md-4.col-sm-6.col-xs-12
                     .panel.panel-default
-                        .panel-heading Connexion
+                        .panel-heading.text-center  autre chose
                         .panel-body
-                            p Déjà un compte ?
-                            a(href="/register?register=0")    
-                                input(type="submit" value="Connectez vous ici")
-                        
-        if (name) || (session) 
-            .row
-                .col-md-4.col-sm-6.col-xs-12
-                    p les liens ayant eu le plus d’interactions
-                .col-md-4.col-sm-6.col-xs-12
-                    p section résumant les nouveautés qu’il y a eu depuis la dernière connexion pour les liens ou on avait interagi dans les dernière 24h. 
-                .col-md-4.col-sm-6.col-xs-12
-                    p autre chose
-            form(action="/disconnect" method="POST") 
-                div     
-                    input(type="submit" value="Déconnexion")
-        else if (inscription != 1)
-            .row
-                .col-md-4.col-sm-6.col-xs-12
-                .col-md-4.col-sm-6.col-xs-12
-                    .panel.panel-default
-                        .panel-heading Connexion
-                        .panel-body 
-                            if (compteur > 0)
-                                p.text-danger Nom d'utilisateur ou mot de passe incorrect, réessayez.
-                            form(action="/login" method="POST") 
-                                p Entrez votre nom d'utilisateur ou adresse e-mail
-                                div     
-                                    input(name="name")
-                                p Entrez votre mot de passe
-                                div     
-                                    input(type = "password" ,name="password")
-                                div     
-                                    input(type="submit" value="valider")
-                .col-md-4.col-sm-6.col-xs-12
-                    .panel.panel-default
-                        .panel-heading Inscription
-                        .panel-body 
-                            p C'est la première fois que vous vous connectez ? Inscrivez vous ici !
-                            a(href= "/register?register=1")    
-                                    input(type="submit" value="S'inscrire")
+                    form(action="/disconnect" method="POST") 
+                        div     
+                            input(type="submit" value="Déconnexion")
+            else if (inscription != 1)
+                .row
+                    .col-md-4.col-sm-6.col-xs-12
+                        .panel.panel-default
+                            .panel-heading.text-center  Connexion
+                            .panel-body 
+                                if (compteur > 0)
+                                    p.text-danger Nom d'utilisateur ou mot de passe incorrect, réessayez.
+                                form(action="/login" method="POST") 
+                                    p Entrez votre nom d'utilisateur ou adresse e-mail
+                                    div     
+                                        input(name="name")
+                                    p Entrez votre mot de passe
+                                    div     
+                                        input(type = "password" ,name="password")
+                                    div     
+                                        input(type="submit" value="valider")
+                                        img.img-fluid(src='https://media1.giphy.com/media/iFgzUCWgxj7B22ik2K/source.gif' alt='Responsive image' style='height: 25px')
+                    .col-md-4.col-sm-6.col-xs-12
+                    .col-md-4.col-sm-6.col-xs-12
+                        .panel.panel-default
+                            .panel-heading.text-center  Inscription
+                            .panel-body 
+                                p C'est la première fois que vous vous connectez ? Inscrivez vous ici !
+                                a(href= "/register?register=1")    
+                                        input(type="submit" value="S'inscrire")
+                                        img.img-fluid(src='https://media1.giphy.com/media/iFgzUCWgxj7B22ik2K/source.gif' alt='Responsive image' style='height: 25px')
+            if (sujet == "football")
+                p.text-center
+                    iframe(width='307' height='210' src='https://www.youtube.com/embed/WAA84Wx1q1w' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')
+                    br
+                    iframe(width='307' height='210' src='https://www.youtube.com/embed/rb7X3Si5EgM?start=41' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')  
+            if (sujet == "ouighours")
+            if (sujet == "politique")
+                p.text-center
+                    iframe(width='560' height='315' src='https://www.youtube.com/embed/Wl959QnD3lM?start=32' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')
+
+                                        

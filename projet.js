@@ -1,11 +1,6 @@
 //Code js
 
 const express = require('express');
-const useradmin = {
-    email :"martin.heliot@free.fr",
-    name :"Martin",
-    password :"Martin"
-}
 const app = express()
 const port = 4000
 
@@ -45,8 +40,10 @@ app.get("/",async(req,res)=> {
         name : req.session.name,
         password : req.session.password,
         session : req.session.user_id,
-        compteur : compteur
+        compteur : compteur,
+        sujet : req.query.sujet,
     }
+    //console.log(data.sujet)
     res.render("projet",data)
 });
 
@@ -56,7 +53,6 @@ app.post("/login",async(req,res)=> {
       password : req.body.password,
       session : req.session.user_id,
       compteur : compteur
-      
     }
     
     const db = await openDb()
@@ -76,7 +72,8 @@ app.post("/login",async(req,res)=> {
         res.redirect("/")
     }
       else if (data.password === obj_pwd[i].pwd) {
-        req.session.user_id = 1
+        req.session.user_id = i
+        console.log(i)
         req.session.name = data.name
         req.session.password = data.password
         res.redirect("/")

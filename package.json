@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "bootstrap-icons": "^1.4.1",
     "connect-sqlite3": "^0.9.11",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
