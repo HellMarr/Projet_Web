@@ -42,8 +42,10 @@ app.get("/",async(req,res)=> {
         session : req.session.user_id,
         compteur : compteur,
         sujet : req.query.sujet,
+        lien : req.query.lien,
+        lien_envoi : req.query.lien_envoi,
     }
-    //console.log(data.sujet)
+    //console.log(data.lien)
     res.render("projet",data)
 });
 
@@ -154,6 +156,17 @@ app.get("/register",async(req,res)=> {
     compteur = 0
     res.redirect("/")
   }
+});
+
+app.post("/add_link",async(req,res)=> {
+  const data = {
+    lien : req.body.lien
+  }
+  if (data.lien.match(/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/))
+    res.redirect("/?lien_envoi=1")
+    // Il faut ajouter le lien à la database des liens partagés
+  else 
+    res.redirect("/?lien_envoi=2")
 });
 
 app.listen(port,() => {
