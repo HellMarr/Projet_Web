@@ -59,7 +59,7 @@ app.post("/login",async(req,res)=> {
     
     const db = await openDb()
     const obj_pwd = await db.all(`
-      SELECT pwd FROM logs
+      SELECT pwd, log_id FROM logs
       WHERE log_name = ? OR mail = ?
     `,[data.name, data.name])
 
@@ -74,8 +74,7 @@ app.post("/login",async(req,res)=> {
         res.redirect("/")
     }
       else if (data.password === obj_pwd[i].pwd) {
-        req.session.user_id = i
-        console.log(i)
+        req.session.user_id = obj_pwd[i].log_id
         req.session.name = data.name
         req.session.password = data.password
         res.redirect("/")
@@ -103,8 +102,8 @@ app.post("/register",async(req,res)=> {
   //On se connecte automatiquement avec nos identifiants
   if (data.name_register.length > 3 && data.password_register.length > 5 && data.email_register.match(/[a-z0-9_\-\.]+@[a-z0-9_\-\.]+\.[a-z]+/i) && data.password_register == data.password_register_confirm){
       compteur = 0
+
       //Ajout à la database
-      req.session.user_id = 1
 
       const db = await openDb()
       const mails = await db.all(`
@@ -122,6 +121,8 @@ app.post("/register",async(req,res)=> {
         await db.run(`
           INSERT INTO logs(mail, log_name, pwd) VALUES(?,?,?)
         `,[data.email_register, data.name_register, data.password_register])
+
+        req.session.user_id = mails.length+1    //numéro du dernier log_id qu'on vient d'ajouter
 
         res.redirect("/")
       }
@@ -162,9 +163,15 @@ app.post("/add_link",async(req,res)=> {
   const data = {
     lien : req.body.lien
   }
-  if (data.lien.match(/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/))
+  if (data.lien.match(/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/)){
+    // Ajout du lien à la database des liens partagés
+    const db = await openDb()
+    await db.run(`
+      INSERT INTO links(name, log, nb_upvote, nb_downvote) VALUES(?,?,?,?)
+    `,[data.lien,req.session.user_id,0,0])
+
     res.redirect("/?lien_envoi=1")
-    // Il faut ajouter le lien à la database des liens partagés
+  }  
   else 
     res.redirect("/?lien_envoi=2")
 });
