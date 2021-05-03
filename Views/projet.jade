@@ -26,14 +26,31 @@ html(lang="en")
                         form(action="/add_link" method="POST") 
                                 p Entrez votre lien à partager
                                 div     
-                                    input(name="lien")
+                                    input(name="lien" size="20")
+                                p Entrez une description à votre lien
+                                div     
+                                    textarea(name="description" size="20")
                                 div     
                                     input(type="submit" value="Valider")
                     if (lien_envoi == 1)
                         p.text-warning Votre lien a été partagé avec succès !
                     if (lien_envoi == 2)
                         p.text-danger Entrez un lien valide !
-
+                    if (sujet != "mes_liens")
+                        a(href= "/?sujet=mes_liens")
+                            .col-md-2.col-sm-6.col-xs-12
+                            .col-md-2.col-sm-6.col-xs-12
+                            .col-md-2.col-sm-6.col-xs-12
+                            .col-md-2.col-sm-6.col-xs-12
+                            .col-md-2.col-sm-6.col-xs-12
+                            .col-md-2.col-sm-6.col-xs-12
+                                .panel.panel-default
+                                    .panel-heading.text-center
+                                        div Vos liens partagés.
+                                    .panel-body.text-center
+                                        svg.bi.bi-link-45deg(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='currentColor' viewBox='0 0 16 16')
+                                            path(d='M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z')
+                                            path(d='M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z')
                     .container.overflow-hidden(style='background-color:#a5c6d8;')
                         if (!sujet)
                                 h2.text-center
@@ -68,9 +85,27 @@ html(lang="en")
                         if (sujet == "politique")
                             p.text-center
                             iframe(width='560' height='315' src='https://www.youtube.com/embed/Wl959QnD3lM?start=32' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')
-                        form(action="/disconnect" method="POST") 
-                            div   
-                                input(type="submit" value="Déconnexion")
+                        if (sujet == "mes_liens")
+                            each lien in lien_page
+                                .panel.panel-default
+                                        .panel-heading.text-center  
+                                            p=lien.link
+                                            a(href="/register?register=0")  
+                                                svg.bi.bi-pencil-fill(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16')
+                                                    path(d='M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z')
+                                        .panel-body.text-center 
+                                            p=lien.description
+                                            a(href="/register?register=0")  
+                                                svg.bi.bi-pencil-fill(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16')
+                                                    path(d='M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z')
+                                        .panel-footer
+                                            each com in lien.commentaires
+                                                p=com.user 
+
+                    div(style='position:sticky;bottom:5px;right:5px;margin:0;padding:5px 3px;')
+                            form(action="/disconnect" method="POST") 
+                                div
+                                    input(type="submit" value="Déconnexion")
             else 
                 //-Inscription et connexion              
                 .container.overflow-hidden(style='background-color:#a5c6d8;')

@@ -44,8 +44,16 @@ app.get("/",async(req,res)=> {
         sujet : req.query.sujet,
         lien : req.query.lien,
         lien_envoi : req.query.lien_envoi,
+        lien_page : [
+        {id: '1', description: 'Ceci est google', link:"google.fr", commentaires : [{user: "Roger", texte:"oui"},{user: "Denis", texte:"ok"}]},
+        {id: '2', description: 'Ceci n est pas google', link:"gogole.fr", commentaires : [{user: "Roger", texte:"oui"},{user: "Denis", texte:"ok"}]},
+        {id: '3', description: 'Ceci non plus', link:"gloglo.fr" ,commentaires : [{user: "Roger", texte:"oui"},{user: "Denis", texte:"ok"}]}
+        ],
     }
     //console.log(data.lien)
+    if (data.sujet == "mes_liens"){
+      console.log("On parcours la database, et on ajoute les liens dans le tableau nombre_lien_page avec nombre_lien_page.push")
+    }
     res.render("projet",data)
 });
 
