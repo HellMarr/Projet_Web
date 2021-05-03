@@ -163,7 +163,7 @@ app.post("/add_link",async(req,res)=> {
   const data = {
     lien : req.body.lien
   }
-  if (data.lien.match(/^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/)){
+  if (data.lien.match(/http(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/)){
     // Ajout du lien à la database des liens partagés
     const db = await openDb()
     await db.run(`
