@@ -44,13 +44,17 @@ app.get("/",async(req,res)=> {
         sujet : req.query.sujet,
         lien : req.query.lien,
         lien_envoi : req.query.lien_envoi,
+        link_id : req.query.link_id,
+        edit : req.query.edit,
         lien_page : [
-        {id: '1', description: 'Ceci est google', link:"google.fr", commentaires : [{user: "Roger", texte:"oui"},{user: "Denis", texte:"ok"}]},
-        {id: '2', description: 'Ceci n est pas google', link:"gogole.fr", commentaires : [{user: "Roger", texte:"oui"},{user: "Denis", texte:"ok"}]},
-        {id: '3', description: 'Ceci non plus', link:"gloglo.fr" ,commentaires : [{user: "Roger", texte:"oui"},{user: "Denis", texte:"ok"}]}
+        {id: '1', description: 'Ceci est google', link:"google.fr", commentaires : [{user: "Roger", texte:"Doctissimo m'a dit que j'ai un cancer",id: '1'},{user: "Denis", texte:"BOOMER",id: '2'}]},
+        {id: '2', description: 'Ceci n est pas google', link:"gogole.fr", commentaires : [{user: "Daniel", texte:"PSG>>City",id: '1'},{user: "Aziz", texte:"mais quid du reste ?",id: '2'}]},
+        {id: '3', description: 'Ceci non plus', link:"gloglo.fr" ,commentaires : [{user: "François", texte:"Abonnez vous je rend",id: '1'},{user: "Gregoire", texte:"qqn dispo en traitement numérique du signal ?",id: '2'}]}
         ],
     }
-    //console.log(data.lien)
+    if (data.link_id){
+      console.log("Ici tu changes le tableau lien_page pour qu'il n'ai qu'une seule ligne, correspondant aux critères du lien partagé numéro link_id")
+    }
     if (data.sujet == "mes_liens"){
       console.log("On parcours la database, et on ajoute les liens dans le tableau nombre_lien_page avec nombre_lien_page.push")
     }
@@ -165,6 +169,23 @@ app.get("/register",async(req,res)=> {
     compteur = 0
     res.redirect("/")
   }
+});
+
+app.get("/edit",async(req,res)=> {
+  const data = {
+    com_id : req.query.com,
+  }
+  console.log("On enlève le commentaire numéro com_id de la Database")
+  res.redirect("/?sujet=link&link_id=1&edit=1")
+});
+
+app.post("/edit",async(req,res)=> {
+  const data = {
+    lien : req.body.lien,
+    description : req.body.description,
+  }
+  console.log("On valide nos changements dans la database")
+  res.redirect("/?sujet=link&link_id=1&edit=1")
 });
 
 app.post("/add_link",async(req,res)=> {
