@@ -23,30 +23,32 @@ async function createLogs(db){
   }
   
   async function createLinks(db){
-    const insertRequest = await db.prepare("INSERT INTO links(name, nb_upvote, nb_downvote, log) VALUES(?, ?, ?, ?)")
+    const insertRequest = await db.prepare("INSERT INTO links(name, content, nb_upvote, nb_downvote, log) VALUES(?, ?, ?, ?, ?)")
     const contents = [{
       name: "http://google.fr",
+      content: "Voici mon 1er lien",
       nb_upvote: 0,
       nb_downvote: 0,
       log: 1
     }
     ]
     return await Promise.all(contents.map(links => {
-      return insertRequest.run([links.name, links.nb_upvote, links.nb_downvote, links.log])
+      return insertRequest.run([links.name, links.content, links.nb_upvote, links.nb_downvote, links.log])
     }))
   }
   
   async function createComs(db){
-    const insertRequest = await db.prepare("INSERT INTO coms(content, nb_upvote, nb_downvote, link) VALUES(?, ?, ?, ?)")
+    const insertRequest = await db.prepare("INSERT INTO coms(content, nb_upvote, nb_downvote, link, log) VALUES(?, ?, ?, ?, ?)")
     const contents = [{
       content: "Excellent site pour faire des recherches!",
       nb_upvote: 1,
       nb_downvote: 0,
-      link: 1
+      link: 1,
+      log: 2
     }
     ]
     return await Promise.all(contents.map(coms => {
-      return insertRequest.run([coms.content, coms.nb_upvote, coms.nb_downvote, coms.link])
+      return insertRequest.run([coms.content, coms.nb_upvote, coms.nb_downvote, coms.link, coms.log])
     }))
   }
 
@@ -76,6 +78,7 @@ async function createLogs(db){
     const links = db.run(`
           CREATE TABLE IF NOT EXISTS links(
             link_id INTEGER PRIMARY KEY,
+            content text,
             name varchar(255),
             nb_upvote int,
             nb_downvote int,
@@ -90,7 +93,9 @@ async function createLogs(db){
             nb_upvote int,
             nb_downvote int,
             link int, --To know the link the com is on
-            FOREIGN KEY(link) REFERENCES links(link_id)
+            log int, --To know who posted this com 
+            FOREIGN KEY(link) REFERENCES links(link_id),
+            FOREIGN KEY(log) REFERENCES logs(log_id)
           )
     `)
     const votes = db.run(`

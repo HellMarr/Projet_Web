@@ -36,6 +36,8 @@ html(lang="en")
                         p.text-warning Votre lien a été partagé avec succès !
                     if (lien_envoi == 2)
                         p.text-danger Entrez un lien valide !
+                    if (lien_envoi == 3)
+                        p.text-danger Donnez une description pour votre lien 
                     if (sujet != "mes_liens" && sujet != "link")
                         a(href= "/?sujet=mes_liens")
                             .col-md-2.col-sm-6.col-xs-12

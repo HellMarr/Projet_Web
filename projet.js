@@ -190,16 +190,23 @@ app.post("/edit",async(req,res)=> {
 
 app.post("/add_link",async(req,res)=> {
   const data = {
-    lien : req.body.lien
+    lien : req.body.lien,
+    description: req.body.description
   }
   if (data.lien.match(/http(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/)){
-    // Ajout du lien à la database des liens partagés
-    const db = await openDb()
-    await db.run(`
-      INSERT INTO links(name, log, nb_upvote, nb_downvote) VALUES(?,?,?,?)
-    `,[data.lien,req.session.user_id,0,0])
+    if (data.description.length==0) {   //Pas de description du lien
+      res.redirect("/?lien_envoi=3")
+    }
 
-    res.redirect("/?lien_envoi=1")
+    else{
+      // Ajout du lien à la database des liens partagés
+      const db = await openDb()
+      await db.run(`
+        INSERT INTO links(name, content, log, nb_upvote, nb_downvote) VALUES(?,?,?,?,?)
+    `,[data.lien,data.description,req.session.user_id,0,0])
+
+      res.redirect("/?lien_envoi=1")
+    }  
   }  
   else 
     res.redirect("/?lien_envoi=2")
