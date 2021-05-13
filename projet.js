@@ -36,6 +36,8 @@ var compteur = 0 ;
 const {openDb} = require("./db");
 
 app.get("/",async(req,res)=> {
+    const db = await openDb()
+
     const data = {
         name : req.session.name,
         password : req.session.password,
@@ -46,17 +48,46 @@ app.get("/",async(req,res)=> {
         lien_envoi : req.query.lien_envoi,
         link_id : req.query.link_id,
         edit : req.query.edit,
-        lien_page : [
-        {id: '1', description: 'Ceci est google', link:"google.fr", commentaires : [{user: "Roger", texte:"Doctissimo m'a dit que j'ai un cancer",id: '1'},{user: "Denis", texte:"BOOMER",id: '2'}]},
-        {id: '2', description: 'Ceci n est pas google', link:"gogole.fr", commentaires : [{user: "Daniel", texte:"PSG>>City",id: '1'},{user: "Aziz", texte:"mais quid du reste ?",id: '2'}]},
-        {id: '3', description: 'Ceci non plus', link:"gloglo.fr" ,commentaires : [{user: "François", texte:"Abonnez vous je rend",id: '1'},{user: "Gregoire", texte:"qqn dispo en traitement numérique du signal ?",id: '2'}]}
-        ],
+        lien_page : new Array(),
+        commentaires : new Array(),
     }
+
     if (data.link_id){
-      console.log("Ici tu changes le tableau lien_page pour qu'il n'ai qu'une seule ligne, correspondant aux critères du lien partagé numéro link_id")
-    }
-    if (data.sujet == "mes_liens"){
-      console.log("On parcours la database, et on ajoute les liens dans le tableau nombre_lien_page avec nombre_lien_page.push")
+      data.lien = await db.all(`
+        SELECT * FROM links
+        WHERE log_link = ?
+      `,[data.link_id])
+
+      data.commentaires = await db.all(`
+        SELECT content_com, log_name FROM coms
+        LEFT JOIN logs ON coms.log_com = logs.log_id
+        WHERE link_com = ?
+      `,[data.lien_page[0].link_id])
+
+      console.log(data.commentaires)  
+
+      }
+
+    if (data.sujet == "mes_liens"){   //Liens partagés par l'utilisateur
+      data.lien_page = await db.all(`
+        SELECT * FROM links
+        WHERE log_link = ?
+      `,[data.session])
+
+      for(let i=0; i<data.lien_page.length; i++){
+        data.commentaires[i] = new Array()
+      }
+
+      for(let i=0; i<data.lien_page.length; i++){
+        data.commentaires[i] = await db.all(`
+          SELECT content_com, link_com, nb_upvote_com, nb_downvote_com, log_name FROM coms
+          LEFT JOIN logs ON coms.log_com = logs.log_id
+          WHERE link_com = ?
+        `,[data.lien_page[i].link_id])
+
+        if(data.commentaires[i].length==0)
+          data.lien_page[i].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
+      }
     }
     res.render("projet",data)
 });
@@ -202,7 +233,7 @@ app.post("/add_link",async(req,res)=> {
       // Ajout du lien à la database des liens partagés
       const db = await openDb()
       await db.run(`
-        INSERT INTO links(name, content, log, nb_upvote, nb_downvote) VALUES(?,?,?,?,?)
+        INSERT INTO links(name, content_link, log_link, nb_upvote_link, nb_downvote_link) VALUES(?,?,?,?,?)
     `,[data.lien,data.description,req.session.user_id,0,0])
 
       res.redirect("/?lien_envoi=1")
