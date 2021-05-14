@@ -50,6 +50,9 @@ app.get("/",async(req,res)=> {
         edit : req.query.edit,
         lien_page : new Array(),
         commentaires : new Array(),
+        upvote : req.query.upvote,
+        downvote : req.query.downvote,
+        comment_id : req.query.comment_id,
     }
 
     if (data.link_id){

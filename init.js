@@ -27,8 +27,8 @@ async function createLogs(db){
     const contents = [{
       name: "http://google.fr",
       content_link: "Voici mon 1er lien",
-      nb_upvote_link: 0,
-      nb_downvote_link: 0,
+      nb_upvote_link: 10,
+      nb_downvote_link: 5,
       log_link: 1
     }
     ]
@@ -41,8 +41,8 @@ async function createLogs(db){
     const insertRequest = await db.prepare("INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com) VALUES(?, ?, ?, ?, ?)")
     const contents = [{
       content_com: "Excellent site pour faire des recherches!",
-      nb_upvote_com: 1,
-      nb_downvote_com: 0,
+      nb_upvote_com: 4,
+      nb_downvote_com: 6,
       link_com: 1,
       log_com: 2
     }
