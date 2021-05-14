@@ -56,34 +56,32 @@ app.get("/",async(req,res)=> {
     }
 
     if (data.link_id){
-      data.lien = await db.all(`
+      data.lien_page = await db.all(`
         SELECT * FROM links
-        WHERE log_link = ?
+        WHERE link_id = ?
       `,[data.link_id])
 
-      data.commentaires = await db.all(`
-        SELECT content_com, log_name FROM coms
+      data.commentaires[0] = await db.all(`
+        SELECT content_com, com_id, nb_upvote_com, nb_downvote_com, log_name FROM coms
         LEFT JOIN logs ON coms.log_com = logs.log_id
         WHERE link_com = ?
       `,[data.lien_page[0].link_id])
 
-      console.log(data.commentaires)  
-
-      }
-
+      if(data.commentaires[0].length==0)
+          data.lien_page[0].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
+    }
+    
     if (data.sujet == "mes_liens"){   //Liens partagés par l'utilisateur
       data.lien_page = await db.all(`
         SELECT * FROM links
         WHERE log_link = ?
       `,[data.session])
 
-      for(let i=0; i<data.lien_page.length; i++){
-        data.commentaires[i] = new Array()
-      }
 
       for(let i=0; i<data.lien_page.length; i++){
+        data.commentaires[i] = new Array()
         data.commentaires[i] = await db.all(`
-          SELECT content_com, link_com, nb_upvote_com, nb_downvote_com, log_name FROM coms
+          SELECT content_com, com_id, link_com, nb_upvote_com, nb_downvote_com, log_name FROM coms
           LEFT JOIN logs ON coms.log_com = logs.log_id
           WHERE link_com = ?
         `,[data.lien_page[i].link_id])
