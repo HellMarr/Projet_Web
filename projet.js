@@ -244,6 +244,28 @@ app.post("/add_link",async(req,res)=> {
     res.redirect("/?lien_envoi=2")
 });
 
+app.post("/add_comment",async(req,res)=> {
+  const data = {
+    commentaire : req.body.commentaire,
+    link_id : req.body.link_id,
+    sujet : req.body.sujet,
+  }
+
+  if (data.commentaire.length==0) {   //Le commentaire est vide
+    res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id+"&lien_envoi=4")
+  }
+
+  else{
+    console.log("Ajout du commentaire à la database des commentaires de ce lien en question")
+    const db = await openDb()
+    await db.run(`
+    INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com) VALUES(?, ?, ?, ?, ?)
+  `,[data.commentaire,0,0,data.link_id,req.session.user_id])
+
+    res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id+"&lien_envoi=5")
+  }  
+});
+
 app.listen(port,() => {
     console.log("Listening on port ", port)
   })
