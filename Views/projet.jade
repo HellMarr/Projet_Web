@@ -19,74 +19,77 @@ html(lang="en")
             b.font-weight-bold Mateo Lopez et Martin Héliot
             br
             //-Activités une fois connecté
-            if ((name) || (session))            
-                    a(href="/?lien=1")  
-                        button.btn.btn-outline-danger(type='button')  Partager un lien
-                    if (lien)
-                        form(action="/add_link" method="POST") 
-                                p Entrez votre lien à partager
-                                div     
-                                    input(name="lien" size="20")
-                                p Entrez une description à votre lien
-                                div     
-                                    textarea(name="description" size="20")
-                                div     
-                                    input(type="submit" value="Valider")
-                    if (lien_envoi == 1)
-                        p.text-warning Votre lien a été partagé avec succès !
-                    if (lien_envoi == 2)
-                        p.text-danger Entrez un lien valide !
-                    if (lien_envoi == 3)
-                        p.text-danger Donnez une description pour votre lien 
-                    if (sujet != "mes_liens" && sujet != "link")
-                        a(href= "/?sujet=mes_liens")
-                            .col-md-2.col-sm-6.col-xs-12
-                            .col-md-2.col-sm-6.col-xs-12
-                            .col-md-2.col-sm-6.col-xs-12
-                            .col-md-2.col-sm-6.col-xs-12
-                            .col-md-2.col-sm-6.col-xs-12
-                            .col-md-2.col-sm-6.col-xs-12
-                                .panel.panel-default
-                                    .panel-heading.text-center
-                                        div Vos liens partagés.
-                                    .panel-body.text-center
-                                        svg.bi.bi-link-45deg(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='currentColor' viewBox='0 0 16 16')
-                                            path(d='M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z')
-                                            path(d='M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z')
+            if ((name) || (session)) 
+                    .col-md-2.col-sm-6.col-xs-12           
+                        a(href="/?lien=1")  
+                            button.btn.btn-outline-danger(type='button')  Partager un lien
+                        if (lien)
+                            form(action="/add_link" method="POST") 
+                                    p Entrez votre lien à partager
+                                    div     
+                                        input(name="lien" size="20")
+                                    p Entrez une description à votre lien
+                                    div     
+                                        textarea(name="description" size="20")
+                                    div     
+                                        input(type="submit" value="Valider")
+                        if (lien_envoi == 1)
+                            p.text-warning Votre lien a été partagé avec succès !
+                        if (lien_envoi == 2)
+                            p.text-danger Entrez un lien valide !
+                        if (lien_envoi == 3)
+                            p.text-danger Donnez une description pour votre lien 
+                    .col-md-2.col-sm-6.col-xs-12 
+                    .col-md-2.col-sm-6.col-xs-12 
+                    .col-md-2.col-sm-6.col-xs-12 
+                    .col-md-2.col-sm-6.col-xs-12 
+                    .col-md-2.col-sm-6.col-xs-12   
+                        if (sujet != "mes_liens" && sujet != "link")
+                            a(href= "/?sujet=mes_liens")
+                                    .panel.panel-default
+                                        .panel-heading.text-center
+                                            div Vos liens partagés.
+                                        .panel-body.text-center
+                                            svg.bi.bi-link-45deg(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='currentColor' viewBox='0 0 16 16')
+                                                path(d='M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z')
+                                                path(d='M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z')
+                    br
+                    br
+                    br
                     .container.overflow-hidden(style='background-color:#a5c6d8;')
                         if (!sujet)
-                                h2.text-center
-                                    span.badge.rounded-pill.bg-primary En tendance aujourd'hui
-                                br
-                                .row
-                                    .col-md-4.col-sm-6.col-xs-12
-                                        p.text-center
-                                            a(href= "/?sujet=football")  
-                                                img.img-fluid(src='https://france3-regions.francetvinfo.fr/image/P8RYW7bB6313ehd3hsPJ6N7MnOM/600x400/regions/2020/08/06/5f2bd3cea9924_maxstockworld407714-4954002.jpg' alt='Responsive image' style='height: 200px' class='img-thumbnail')
-                                    .col-md-4.col-sm-6.col-xs-12
-                                        p.text-center
-                                            a(href= "/?sujet=ouighours")  
-                                                img.img-fluid(src='https://s.france24.com/media/display/44a9e876-0fae-11e9-a8e3-005056a964fe/w:1280/p:4x3/ouighours.jpg' alt='Responsive image' style='height: 200px' class='img-thumbnail')
-                                    .col-md-4.col-sm-6.col-xs-12
-                                        p.text-center
-                                            a(href= "/?sujet=politique")  
-                                                img.img-fluid(src='https://d3i6fh83elv35t.cloudfront.net/static/2020/03/2020-03-25T140713Z_395594442_RC22RF98OOTJ_RTRMADP_3_HEALTH-CORONAVIRUS-RUSSIA-PUTIN-1024x695.jpg' alt='Responsive image' style='height: 200px' class='img-thumbnail')
-                                .panel.panel-default
-                                    .panel-heading.text-center  Section résumant les nouveautés qu’il y a eu depuis la dernière connexion pour les liens ou on avait interagi dans les dernière 24h. 
-                                    .panel-body
-                                .panel.panel-default
-                                    .panel-heading.text-center  Autre chose
-                                    .panel-body
+                                //- h2.text-center
+                                //-     span.badge.rounded-pill.bg-primary En tendance aujourd'hui
+                                //- br
+                                //- .row
+                                //-     .col-md-4.col-sm-6.col-xs-12
+                                //-         p.text-center
+                                //-             a(href= "/?sujet=football")  
+                                //-                 img.img-fluid(src='https://france3-regions.francetvinfo.fr/image/P8RYW7bB6313ehd3hsPJ6N7MnOM/600x400/regions/2020/08/06/5f2bd3cea9924_maxstockworld407714-4954002.jpg' alt='Responsive image' style='height: 200px' class='img-thumbnail')
+                                //-     .col-md-4.col-sm-6.col-xs-12
+                                //-         p.text-center
+                                //-             a(href= "/?sujet=ouighours")  
+                                //-                 img.img-fluid(src='https://s.france24.com/media/display/44a9e876-0fae-11e9-a8e3-005056a964fe/w:1280/p:4x3/ouighours.jpg' alt='Responsive image' style='height: 200px' class='img-thumbnail')
+                                //-     .col-md-4.col-sm-6.col-xs-12
+                                //-         p.text-center
+                                //-             a(href= "/?sujet=politique")  
+                                //-                 img.img-fluid(src='https://d3i6fh83elv35t.cloudfront.net/static/2020/03/2020-03-25T140713Z_395594442_RC22RF98OOTJ_RTRMADP_3_HEALTH-CORONAVIRUS-RUSSIA-PUTIN-1024x695.jpg' alt='Responsive image' style='height: 200px' class='img-thumbnail')
+                                //- .panel.panel-default
+                                //-     .panel-heading.text-center  Section résumant les nouveautés qu’il y a eu depuis la dernière connexion pour les liens ou on avait interagi dans les dernière 24h. 
+                                //-     .panel-body
+                                //- .panel.panel-default
+                                //-     .panel-heading.text-center  Autre chose
+                                //-     .panel-body
                                 
-                        if (sujet == "football")
-                            p.text-center
-                                iframe(width='307' height='210' src='https://www.youtube.com/embed/WAA84Wx1q1w' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')
-                                br
-                                iframe(width='307' height='210' src='https://www.youtube.com/embed/rb7X3Si5EgM?start=41' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')  
-                        if (sujet == "ouighours")
-                        if (sujet == "politique")
-                            p.text-center
-                            iframe(width='560' height='315' src='https://www.youtube.com/embed/Wl959QnD3lM?start=32' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')
+                        //- if (sujet == "football")
+                        //-     p.text-center
+                        //-         iframe(width='307' height='210' src='https://www.youtube.com/embed/WAA84Wx1q1w' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')
+                        //-         br
+                        //-         iframe(width='307' height='210' src='https://www.youtube.com/embed/rb7X3Si5EgM?start=41' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')  
+                        //- if (sujet == "ouighours")
+                        //- if (sujet == "politique")
+                        //-     p.text-center
+                        //-     iframe(width='560' height='315' src='https://www.youtube.com/embed/Wl959QnD3lM?start=32' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen='')
                         if (sujet == "mes_liens")
                             if(lien_page.length>0)
                                 each liens in lien_page
@@ -178,7 +181,7 @@ html(lang="en")
                                         text=lien_page[0].nb_downvote_link
                                     if(edit == 1)
                                         p Supprimer votre lien ici
-                                        a(href="/edit?edit=1")   
+                                        a(href="/edit?type_edition=1&link_id="+lien_page[0].link_id)   
                                                 svg.bi.bi-trash(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='red' viewBox='0 0 16 16')
                                                     path(d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z')
                                                     path(fill-rule='evenodd' d='M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z')
@@ -215,7 +218,7 @@ html(lang="en")
                                                     text=com.nb_downvote_com
                                                 br  
                                                 if(edit == 1)
-                                                    a(href="/edit?comment_id="+com.com_id)  
+                                                    a(href="/edit?comment_id="+com.com_id+"&type_edition=2&link_id="+lien_page[0].link_id)  
                                                         svg.bi.bi-trash(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='red' viewBox='0 0 16 16')
                                                             path(d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z')
                                                             path(fill-rule='evenodd' d='M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z')

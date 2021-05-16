@@ -205,10 +205,19 @@ app.get("/register",async(req,res)=> {
 
 app.get("/edit",async(req,res)=> {
   const data = {
-    com_id : req.query.com,
+    com_id : req.query.comment_id,
+    type_edition : req.query.type_edition,
+    link_id : req.query.link_id,
   }
-  console.log("On enlève le commentaire numéro com_id de la Database")
-  res.redirect("/?sujet=link&link_id=1&edit=1")
+  if (data.type_edition == 2){
+    console.log("On enlève le commentaire numéro com_id de la Database")
+    res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
+  }
+  if (data.type_edition == 1){
+    console.log("On Supprime carrément le lien")
+    res.redirect("/")
+  }
+
 });
 
 app.post("/edit",async(req,res)=> {
