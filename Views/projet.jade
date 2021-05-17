@@ -95,8 +95,21 @@ html(lang="en")
                                 each liens in lien_page
                                     .panel.panel-default
                                             .panel-heading.text-center  
-                                                a(href="/?sujet=link&link_id="+liens.link_id)  
-                                                    p=liens.name 
+                                                p=liens.name 
+                                                .row
+                                                    .col-md-4.col-sm-6.col-xs-12
+                                                        a(href="/?sujet=link&link_id="+liens.link_id+"&edit=1")  
+                                                            text editer votre lien
+                                                            svg.bi.bi-pencil-fill(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='Black' viewBox='0 0 16 16')
+                                                                path(d='M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z')
+                                                    .col-md-4.col-sm-6.col-xs-12
+                                                    .col-md-4.col-sm-6.col-xs-12
+                                                        a(href="/?sujet=link&link_id="+liens.link_id) 
+                                                            text aller sur la page du lien 
+                                                            svg.bi.bi-eye(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='Black' viewBox='0 0 16 16')
+                                                                path(d='M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z')
+                                                                path(d='M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z')
+                                                br
                                                 span.badge.bg-secondary  
                                                     a(href="/?link_id="+liens.link_id+"&upvote=1")    
                                                         svg.bi.bi-arrow-up-circle(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='White' viewBox='0 0 16 16')
@@ -110,20 +123,22 @@ html(lang="en")
                                                             path(fill-rule='evenodd' d='M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z')
                                                         svg.bi.bi-arrow-down-circle-fill(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='Orange' viewBox='0 0 16 16')
                                                             path(d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z')
-                                                    text=liens.nb_downvote_link
-                                                .panel-heading.text-center  
-                                                a(href="/?sujet=link&link_id="+liens.link_id+"&edit=1")  
-                                                    svg.bi.bi-pencil-fill(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='green' viewBox='0 0 16 16')
-                                                        path(d='M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z')
+                                                    text=liens.nb_downvote_link 
                                             .panel-body.text-center 
+                                                .row
+                                                    .col-md-4.col-sm-6.col-xs-12
+                                                    .col-md-4.col-sm-6.col-xs-12
+                                                        text
+                                                            u="Publié par l'utilisateur " + liens.log_link + " :"
+                                                    .col-md-4.col-sm-6.col-xs-12
                                                 p=liens.content_link 
                                             .panel-footer
-                                                each coms in commentaires
-                                                        each com in coms
-                                                            if(liens.nb_com_link==0) 
-                                                                //-Pas encore de commentaires
-                                                                p="Aucun commentaire sur ce lien"
-                                                            else 
+                                                if(liens.nb_com_link==0) 
+                                                    //-Pas encore de commentaires
+                                                    p="Aucun commentaire sur ce lien"
+                                                else 
+                                                    each coms in commentaires
+                                                            each com in coms
                                                                 div=com.log_name + " a écrit : " + com.content_com
                                                                 span.badge.bg-secondary
                                                                     a(href="/?link_id="+liens.link_id+"&comment_id="+com.com_id+"&upvote=1")    
@@ -140,17 +155,6 @@ html(lang="en")
                                                                             path(d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z')
                                                                     text=com.nb_downvote_com
                                                                 br  
-                                                form(action="/add_comment" method="POST") 
-                                                    div     
-                                                        textarea(name="commentaire")
-                                                    div  
-                                                        input(type='hidden' name='link_id' value=liens.link_id)
-                                                        input(type='hidden' name='sujet' value='mes_liens')
-                                                        input(type="submit" value="Ajouter mon commentaire")    
-                                                if (lien_envoi == 5)
-                                                    p.text-warning Votre commentaire a été ajouté avec succès !
-                                                if (lien_envoi == 4)
-                                                    p.text-danger Votre commentaire est vide !  
                             else 
                                 //-Aucun lien partagé
                                 .panel.panel-default
@@ -222,17 +226,18 @@ html(lang="en")
                                                         svg.bi.bi-trash(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='red' viewBox='0 0 16 16')
                                                             path(d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z')
                                                             path(fill-rule='evenodd' d='M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z')
-                                        form(action="/add_comment" method="POST") 
-                                            div     
-                                                textarea(name="commentaire")
-                                            div  
-                                                input(type='hidden' name='link_id' value=lien_page[0].link_id)
-                                                input(type='hidden' name='sujet' value='link')
-                                                input(type="submit" value="Ajouter mon commentaire")    
-                                        if (lien_envoi == 5)
-                                            p.text-warning Votre commentaire a été ajouté avec succès !
-                                        if (lien_envoi == 4)
-                                            p.text-danger Votre commentaire est vide ! 
+                                        if (!edit)
+                                            form(action="/add_comment" method="POST") 
+                                                div     
+                                                    textarea(name="commentaire")
+                                                div  
+                                                    input(type='hidden' name='link_id' value=lien_page[0].link_id)
+                                                    input(type='hidden' name='sujet' value='link')
+                                                    input(type="submit" value="Ajouter mon commentaire")    
+                                            if (lien_envoi == 5)
+                                                p.text-warning Votre commentaire a été ajouté avec succès !
+                                            if (lien_envoi == 4)
+                                                p.text-danger Votre commentaire est vide ! 
                     div(style='position:sticky;bottom:5px;right:5px;margin:0;padding:5px 3px;')
                             form(action="/disconnect" method="POST") 
                                 div
