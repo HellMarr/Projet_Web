@@ -57,12 +57,13 @@ app.get("/",async(req,res)=> {
 
     if (data.link_id){
       data.lien_page = await db.all(`
-        SELECT * FROM links
+        SELECT *, log_name FROM links
+        LEFT JOIN logs ON links.log_link = logs.log_id
         WHERE link_id = ?
       `,[data.link_id])
 
       data.commentaires[0] = await db.all(`
-        SELECT content_com, com_id, nb_upvote_com, nb_downvote_com, log_name FROM coms
+        SELECT *, log_name FROM coms
         LEFT JOIN logs ON coms.log_com = logs.log_id
         WHERE link_com = ?
       `,[data.lien_page[0].link_id])
@@ -73,7 +74,8 @@ app.get("/",async(req,res)=> {
     
     if (data.sujet == "mes_liens"){   //Liens partagés par l'utilisateur
       data.lien_page = await db.all(`
-        SELECT * FROM links
+        SELECT *, log_name FROM links
+        LEFT JOIN logs ON links.log_link = logs.log_id
         WHERE log_link = ?
       `,[data.session])
 
@@ -81,7 +83,7 @@ app.get("/",async(req,res)=> {
       for(let i=0; i<data.lien_page.length; i++){
         data.commentaires[i] = new Array()
         data.commentaires[i] = await db.all(`
-          SELECT content_com, com_id, link_com, nb_upvote_com, nb_downvote_com, log_name FROM coms
+          SELECT *, log_name FROM coms
           LEFT JOIN logs ON coms.log_com = logs.log_id
           WHERE link_com = ?
         `,[data.lien_page[i].link_id])
@@ -210,6 +212,12 @@ app.get("/edit",async(req,res)=> {
     link_id : req.query.link_id,
   }
   if (data.type_edition == 2){
+    const db = await openDb()
+    await db.run(`
+      DELETE FROM coms
+      WHERE com_id = ?
+    `[data.com_id])
+
     console.log("On enlève le commentaire numéro com_id de la Database")
     res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
   }
@@ -222,11 +230,18 @@ app.get("/edit",async(req,res)=> {
 
 app.post("/edit",async(req,res)=> {
   const data = {
-    lien : req.body.lien,
+    link : req.query.link_id,
     description : req.body.description,
   }
-  console.log("On valide nos changements dans la database")
-  res.redirect("/?sujet=link&link_id=1&edit=1")
+
+  const db = await openDb()
+  db.run(`
+    UPDATE links
+    SET content_link = ?
+    WHERE link_id = ?
+  `,[data.description,data.link])
+  
+  res.redirect("/?sujet=link&link_id="+data.link+"&edit=1")
 });
 
 app.post("/add_link",async(req,res)=> {
@@ -265,10 +280,9 @@ app.post("/add_comment",async(req,res)=> {
   }
 
   else{
-    console.log("Ajout du commentaire à la database des commentaires de ce lien en question")
     const db = await openDb()
     await db.run(`
-    INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com) VALUES(?, ?, ?, ?, ?)
+      INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com) VALUES(?, ?, ?, ?, ?)
   `,[data.commentaire,0,0,data.link_id,req.session.user_id])
 
     res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id+"&lien_envoi=5")
