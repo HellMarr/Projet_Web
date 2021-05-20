@@ -23,17 +23,18 @@ async function createLogs(db){
   }
   
   async function createLinks(db){
-    const insertRequest = await db.prepare("INSERT INTO links(name, content_link, nb_upvote_link, nb_downvote_link, log_link) VALUES(?,?,?,?,?)")
+    const insertRequest = await db.prepare("INSERT INTO links(name, content_link, nb_upvote_link, nb_downvote_link, log_link,nb_commentaire_link) VALUES(?,?,?,?,?,?)")
     const contents = [{
       name: "http://google.fr",
       content_link: "Voici mon 1er lien",
       nb_upvote_link: 0,
       nb_downvote_link: 0,
-      log_link: 1
+      log_link: 1,
+      nb_commentaire_link: 1
     }
     ]
     return await Promise.all(contents.map(links => {
-      return insertRequest.run([links.name, links.content_link, links.nb_upvote_link, links.nb_downvote_link, links.log_link])
+      return insertRequest.run([links.name, links.content_link, links.nb_upvote_link, links.nb_downvote_link, links.log_link, links.nb_commentaire_link])
     }))
   }
   
@@ -72,7 +73,8 @@ async function createLogs(db){
         log_id INTEGER PRIMARY KEY,
         mail varchar(255),
         log_name varchar(255),
-        pwd varchar(255)
+        pwd varchar(255),
+        last_session int DEFAULT(0)
       )
     `)
     const links = db.run(`
@@ -80,9 +82,10 @@ async function createLogs(db){
             link_id INTEGER PRIMARY KEY,
             content_link text,
             name varchar(255),
-            nb_upvote_link int,
-            nb_downvote_link int,
+            nb_upvote_link int DEFAULT(0),
+            nb_downvote_link int DEFAULT(0),
             link_date int DEFAULT(0),
+            nb_commentaire_link int DEFAULT(0),
             log_link int,  --To know who posted this link
             FOREIGN KEY(log_link) REFERENCES logs(log_id)
           )

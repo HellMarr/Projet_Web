@@ -43,7 +43,7 @@ html(lang="en")
                         if (sujet != "mes_liens" && sujet != "link")
                             .panel-danger.panel-default
                                 .panel-heading.text-center
-                                    text TENDANCES
+                                    text TENDANCES 24 HEURES
                             br
                             each liens in lien_24heures
                                 .panel.panel-default
@@ -51,7 +51,19 @@ html(lang="en")
                                         a(href="/?sujet=link&link_id="+liens.link_id) 
                                             div=liens.name
                                     .panel-body.text-center 
-                                        div=liens.nb_upvote_link+" Intéractions"
+                                        div=liens.nb_commentaire_link + " commentaires et "+liens.nb_upvote_link +" upvotes."
+                        if (sujet != "mes_liens" && sujet != "link")
+                            .panel-danger.panel-default
+                                .panel-heading.text-center
+                                    text TENDANCES ALL TIME
+                            br
+                            each liens in lien_all_time
+                                .panel.panel-default
+                                    .panel-heading.text-center
+                                        a(href="/?sujet=link&link_id="+liens.link_id) 
+                                            div=liens.name
+                                    .panel-body.text-center 
+                                        div=liens.nb_commentaire_link + " commentaires et "+liens.nb_upvote_link +" upvotes."
                     .col-md-4.col-sm-6.col-xs-12
                         if (sujet != "mes_liens" && sujet != "link")
                             .panel.panel-default
@@ -67,6 +79,7 @@ html(lang="en")
                                         svg.bi.bi-person-circle(xmlns='http://www.w3.org/2000/svg' width='120' height='120' fill='Black' viewBox='0 0 16 16')
                                             path(d='M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z')
                                             path(fill-rule='evenodd' d='M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z')
+                    br
                     br
                     br
                     .container.overflow-hidden(style='background-color:#a5c6d8;')

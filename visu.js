@@ -17,7 +17,7 @@ app.set('view engine', 'jade');
 app.get("/", async(req,res) => {
     const db=await openDb()
       const dataDb=await db.all(`
-      SELECT * FROM links
+      SELECT * FROM coms
       `)
       console.log(dataDb)
     const data = {

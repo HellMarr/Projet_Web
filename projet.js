@@ -56,6 +56,7 @@ app.get("/",async(req,res)=> {
         downvotes_com : new Array(),
         comment_id : req.query.comment_id,
         lien_24heures : new Array(),
+        lien_all_time : new Array(),
     }
 
     //Page d'un lien
@@ -114,7 +115,7 @@ app.get("/",async(req,res)=> {
         LEFT JOIN coms ON links.log_link = coms.log_com   --Liens où il a commenté
         LEFT JOIN votes ON links.log_link = votes.log_vote    --Liens où il a voté
         WHERE link_id = ? OR log_com = ? OR log_vote = ?
-      `,[data.session])
+      `,[data.session,data.session,data.session])
 
 
       for(let i=0; i<data.lien_page.length; i++){
@@ -151,10 +152,16 @@ app.get("/",async(req,res)=> {
     data.lien_24heures = await db.all(`
       SELECT *, log_name FROM links
       LEFT JOIN logs ON links.log_link = logs.log_id
-      WHERE (link_date + 24*3600*1000) > ?  
-      ORDER BY nb_upvote_link DESC LIMIT 10
+      WHERE (link_date + 24*3600*1000) >= ?  
+      ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
     `,[Date.now()])
 
+    data.lien_all_time = await db.all(`
+      SELECT *, log_name FROM links
+      LEFT JOIN logs ON links.log_link = logs.log_id
+      WHERE (link_date + 24*3600*1000) >= 0 
+      ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
+    `)
     res.render("projet",data)
 });
 
@@ -192,10 +199,16 @@ app.post("/login",async(req,res)=> {
 });
 
 app.post("/disconnect",async(req,res)=> {
-    req.session.user_id = 0;
     req.session.name = null
     req.session.password = null
     compteur = 0
+    const db = await openDb()
+    db.run(`
+      UPDATE logs
+      SET last_session = ?
+      WHERE log_id = ?
+    `,[Date.now(),req.session.user_id])
+    req.session.user_id = 0;
     res.redirect("/")
 });
 
@@ -573,7 +586,7 @@ app.post("/add_link",async(req,res)=> {
       // Ajout du lien à la database des liens partagés
       const db = await openDb()
       await db.run(`
-        INSERT INTO links(name, content_link, log_link, nb_upvote_link, nb_downvote_link, link_date) VALUES(?,?,?,?,?,?)
+        INSERT INTO links(name, content_link, log_link, nb_upvote_link, nb_downvote_link, link_date,) VALUES(?,?,?,?,?,?)
     `,[data.lien,data.description,req.session.user_id,0,0,Date.now()])
 
       res.redirect("/?lien_envoi=1")
@@ -600,6 +613,11 @@ app.post("/add_comment",async(req,res)=> {
       INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com, com_date) VALUES(?, ?, ?, ?, ?, ?)
   `,[data.commentaire,0,0,data.link_id,req.session.user_id,Date.now()])
 
+    db.run(`
+      UPDATE links
+      SET nb_commentaire_link = nb_commentaire_link + 1
+      WHERE link_id = ?
+    `,[data.link_id])
     res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id+"&lien_envoi=5")
   }  
 });
