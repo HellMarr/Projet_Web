@@ -50,18 +50,21 @@ app.get("/",async(req,res)=> {
         edit : req.query.edit,
         lien_page : new Array(),
         commentaires : new Array(),
+        upvotes_link : new Array(),
+        downvotes_link : new Array(),
+        upvotes_com : new Array(),
+        downvotes_com : new Array(),
         comment_id : req.query.comment_id,
         lien_24heures : new Array(),
     }
 
+    //Page d'un lien
     if (data.sujet == "link"){
       data.lien_page = await db.all(`
         SELECT *, log_name FROM links
-        LEFT JOIN logs ON links.log_link = logs.log_id    --Liens utilisateur
-        LEFT JOIN coms ON links.log_link = coms.log_com   --Liens où il a commenté
-        LEFT JOIN votes ON links.log_link = votes.log_vote    --Liens où il a voté
-        WHERE link_id = ? OR log_com = ? OR log_vote = ?
-      `,[data.link_id, data.link_id, data.link_id])
+        LEFT JOIN logs ON links.log_link = logs.log_id
+        WHERE log_link = ?
+      `,[data.link_id])
 
       data.commentaires[0] = await db.all(`
         SELECT *, log_name FROM coms
@@ -69,15 +72,48 @@ app.get("/",async(req,res)=> {
         WHERE link_com = ?
       `,[data.lien_page[0].link_id])
 
+      data.upvotes_link[0] = await db.all(`    
+        SELECT * FROM votes  
+        WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+      `,[data.session, data.link_id,1])
+
+      data.downvotes_link[0] = await db.all(`    
+        SELECT * FROM votes  
+        WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+      `,[data.session, data.link_id,-1])
+
+      for(let j=0;j<data.commentaires.length;j++){
+        data.upvotes_com[j] = new Array()
+        data.upvotes_com[j] = await db.all(`    
+          SELECT * FROM votes  
+          WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+        `,[data.session, data.commentaires[0][j].com_id,1])
+
+        data.downvotes_com[j] = new Array()
+        data.downvotes_link[j] = await db.all(`    
+          SELECT * FROM votes  
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+        `,[data.session, data.commentaires[0][j].com_id,-1])
+      }
+
       if(data.commentaires[0].length==0)
           data.lien_page[0].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
+
+      //Gestion des boutons de likes
+      if(data.upvotes_link[0].length==0)
+          data.lien_page[0].nb_up_link=0 
+      if(data.downvotes_link[0].length==0)
+          data.lien_page[0].nb_down_link=0 
     }
     
-    if (data.sujet == "mes_liens"){   //Liens partagés par l'utilisateur
+    //Page de profil
+    if (data.sujet == "mes_liens"){   //Liens avec lesquels l'utilisateur a interagi
       data.lien_page = await db.all(`
         SELECT *, log_name FROM links
-        LEFT JOIN logs ON links.log_link = logs.log_id
-        WHERE log_link = ?
+        LEFT JOIN logs ON links.log_link = logs.log_id    --Liens utilisateur
+        LEFT JOIN coms ON links.log_link = coms.log_com   --Liens où il a commenté
+        LEFT JOIN votes ON links.log_link = votes.log_vote    --Liens où il a voté
+        WHERE link_id = ? OR log_com = ? OR log_vote = ?
       `,[data.session])
 
 
@@ -89,8 +125,26 @@ app.get("/",async(req,res)=> {
           WHERE link_com = ?
         `,[data.lien_page[i].link_id])
 
+        data.upvotes_link[i] = new Array()
+        data.upvotes_link[i] = await db.all(`    
+          SELECT * FROM votes  
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+      `,[data.session, data.lien_page[i].link_id,1])
+
+        data.downvotes_link[i] = new Array()
+        data.downvotes_link[i] = await db.all(`    
+          SELECT * FROM votes  
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+      `,[data.session, data.lien_page[i].link_id,-1])
+
         if(data.commentaires[i].length==0)
           data.lien_page[i].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
+
+        //Gestion des boutons de likes
+        if(data.upvotes_link[i].length==0)
+          data.lien_page[i].nb_up_link=0 
+        if(data.downvotes_link[i].length==0)
+          data.lien_page[i].nb_down_link=0 
       }
     }
 
@@ -265,37 +319,238 @@ app.get("/vote",async(req,res)=> {
   }
   const db = await openDb()
 
+  //Variables pour les votes sur liens:
+  const verif_up_lien = await db.all(`    
+    SELECT * FROM votes  
+    WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+  `,[data.session, data.link_id,1])
+
+  const nb_up_link = await db.get(`
+    SELECT nb_upvote_link FROM links  
+    WHERE link_id = ? 
+  `,[data.link_id])
+
+  const verif_down_lien = await db.all(`
+    SELECT * FROM votes  
+    WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+  `,[data.session, data.link_id,-1])
+
+  const nb_down_link = await db.get(`
+    SELECT nb_downvote_link FROM links  
+    WHERE link_id = ? 
+  `,[data.link_id])
+
+  //Variables pour les votes sur commentaires:
+  const verif_up_com = await db.all(`    
+    SELECT * FROM votes  
+    WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+  `,[data.session, data.com_id,1])
+
+  const nb_up_com = await db.get(`
+    SELECT nb_upvote_com FROM coms  
+    WHERE com_id = ? 
+  `,[data.com_id])
+
+  const verif_down_com = await db.all(`
+    SELECT * FROM votes  
+    WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+  `,[data.session, data.com_id,-1])
+
+  const nb_down_com = await db.get(`
+    SELECT nb_downvote_com FROM coms  
+    WHERE com_id = ? 
+  `,[data.com_id])
+
   if(data.upvote){    //upvote
     if(!data.com_id & data.link_id){    //upvote sur un lien
-      const verif_up_lien = await db.all(`
-        SELECT *, nb_upvote_link FROM votes
-        LEFT JOIN links ON votes.link_vote = links.link_id  
-        WHERE log_vote = ? AND link_vote = ? 
-      `,[data.session, data.link_id])
-  
-    if(verif_up_lien.length==0){   //pas upvoté
-      await db.run(`
-        INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
-      `,["upvote",Date.now(),data.session,data.link_id,0])  
-      await db.run(`
-        UPDATE links
-        SET nb_upvote_link = ?
-        WHERE link_id = ?
-      `,[verif_up_lien.nb_upvote_link+1,data.link_id]) 
-    }
-    else                          //déjà upvoté
-      await db.run(`
-        DELETE FROM votes
-        WHERE log_vote = ? AND link_vote = ?
-      `,[data.session,data.link_id])  
+
+      if(verif_up_lien.length==0 & verif_down_lien.length==0){   //pas upvoté ni downvoté
+        //Ajout upvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[1,Date.now(),data.session,data.link_id,0])  
+        await db.run(`
+          UPDATE links
+          SET nb_upvote_link = ?
+          WHERE link_id = ?
+        `,[nb_up_link.nb_upvote_link+1,data.link_id]) 
+      }
+      else if(verif_up_lien.length==0 & verif_down_lien.length!=0){   //pas upvoté mais downvoté
+        //Suppression downvote
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+        `,[data.session,data.link_id,-1])  
+        await db.run(`
+          UPDATE links
+          SET nb_downvote_link = ?
+          WHERE link_id = ?
+        `,[nb_down_link.nb_downvote_link-1,data.link_id])
+        //Ajout upvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[1,Date.now(),data.session,data.link_id,0])  
+        await db.run(`
+          UPDATE links
+          SET nb_upvote_link = ?
+          WHERE link_id = ?
+        `,[nb_up_link.nb_upvote_link+1,data.link_id])   
+      }
+      else{                          //déjà upvoté
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+        `,[data.session,data.link_id,1])  
+        await db.run(`
+          UPDATE links
+          SET nb_upvote_link = ?
+          WHERE link_id = ?
+        `,[nb_up_link.nb_upvote_link-1,data.link_id]) 
+      }
     }
     
+    if(data.com_id & data.link_id){    //upvote sur un commentaire
 
-    /*if(verif){
-      await db.run(`
-        UPDATE
-      `)
-    }*/
+      if(verif_up_com.length==0 & verif_down_com.length==0){   //pas upvoté ni downvoté
+        //Ajout upvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[1,Date.now(),data.session,0,data.com_id])  
+        await db.run(`
+          UPDATE coms
+          SET nb_upvote_com = ?
+          WHERE com_id = ?
+        `,[nb_up_com.nb_upvote_com+1,data.com_id]) 
+      }
+      else if(verif_up_com.length==0 & verif_down_com.length!=0){   //pas upvoté mais downvoté
+        //Suppression downvote
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+        `,[data.session,data.com_id,-1])  
+        await db.run(`
+          UPDATE coms
+          SET nb_downvote_com = ?
+          WHERE com_id = ?
+        `,[nb_down_com.nb_downvote_com-1,data.com_id])
+        //Ajout upvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[1,Date.now(),data.session,0,data.com_id])  
+        await db.run(`
+          UPDATE coms
+          SET nb_upvote_com = ?
+          WHERE com_id = ?
+        `,[nb_up_com.nb_upvote_com+1,data.com_id])   
+      }
+      else{                          //déjà upvoté
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+        `,[data.session,data.com_id,1])  
+        await db.run(`
+          UPDATE coms
+          SET nb_upvote_com = ?
+          WHERE com_id = ?
+        `,[nb_up_com.nb_upvote_com-1,data.com_id]) 
+      }
+    }
+  }
+
+  if(data.downvote){    //downvote
+    if(!data.com_id & data.link_id){    //downvote sur un lien
+
+      if(verif_down_lien.length==0 & verif_up_lien.length==0){   //pas downvoté ni upvoté
+        //Ajout downvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[-1,Date.now(),data.session,data.link_id,0])  
+        await db.run(`
+          UPDATE links
+          SET nb_downvote_link = ?
+          WHERE link_id = ?
+        `,[nb_down_link.nb_downvote_link+1,data.link_id]) 
+      }
+      else if(verif_down_lien.length==0 & verif_up_lien.length!=0){   //pas downvoté mais upvoté
+        //Suppression upvote
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+        `,[data.session,data.link_id,1])  
+        await db.run(`
+          UPDATE links
+          SET nb_upvote_link = ?
+          WHERE link_id = ?
+        `,[nb_up_link.nb_upvote_link-1,data.link_id])
+        //Ajout downvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[-1,Date.now(),data.session,data.link_id,0])  
+        await db.run(`
+          UPDATE links
+          SET nb_downvote_link = ?
+          WHERE link_id = ?
+        `,[nb_down_link.nb_downvote_link+1,data.link_id])   
+      }
+      else{                          //déjà downvoté
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+        `,[data.session,data.link_id,-1])  
+        await db.run(`
+          UPDATE links
+          SET nb_downvote_link = ?
+          WHERE link_id = ?
+        `,[nb_down_link.nb_downvote_link-1,data.link_id]) 
+      }
+    }
+    
+    if(data.com_id & data.link_id){    //downvote sur un commentaire
+
+      if(verif_down_com.length==0 & verif_up_com.length==0){   //pas downvoté ni upvoté
+        //Ajout downvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[-1,Date.now(),data.session,0,data.com_id])  
+        await db.run(`
+          UPDATE coms
+          SET nb_downvote_com = ?
+          WHERE com_id = ?
+        `,[nb_down_com.nb_downvote_com+1,data.com_id]) 
+      }
+      else if(verif_down_com.length==0 & verif_up_com.length!=0){   //pas downvoté mais upvoté
+        //Suppression upvote
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+        `,[data.session,data.com_id,1])  
+        await db.run(`
+          UPDATE coms
+          SET nb_upvote_com = ?
+          WHERE com_id = ?
+        `,[nb_up_com.nb_upvote_com-1,data.com_id])
+        //Ajout downvote
+        await db.run(`
+          INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+        `,[-1,Date.now(),data.session,0,data.com_id])  
+        await db.run(`
+          UPDATE coms
+          SET nb_downvote_com = ?
+          WHERE com_id = ?
+        `,[nb_down_com.nb_downvote_com+1,data.com_id])   
+      }
+      else{                          //déjà downvoté
+        await db.run(`
+          DELETE FROM votes
+          WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+        `,[data.session,data.com_id,-1])  
+        await db.run(`
+          UPDATE coms
+          SET nb_downvote_com = ?
+          WHERE com_id = ?
+        `,[nb_down_com.nb_downvote_com-1,data.com_id]) 
+      }
+    } 
   }
 
   if(data.sujet == "link")

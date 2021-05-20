@@ -55,7 +55,7 @@ async function createLogs(db){
   async function createVotes(db){
     const insertRequest = await db.prepare("INSERT INTO votes(type_vote, log_vote, link_vote, com_vote) VALUES(?, ?, ?, ?)")
     const contents = [{
-      type_vote: "upvote",
+      type_vote: 1,
       log_vote: 1,
       link_vote: 0,
       com_vote: 1
@@ -103,7 +103,7 @@ async function createLogs(db){
     const votes = db.run(`
         CREATE TABLE IF NOT EXISTS votes(  
             vote_id INTEGER PRIMARY KEY,
-            type_vote varchar(255), --upvote or downvote
+            type_vote int, --1 for upvote and -1 for downvote
             vote_date int DEFAULT(0),
             log_vote int,  --To know who is the owner of this vote
             link_vote int, --0 if the vote is on a com 
