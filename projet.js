@@ -50,17 +50,18 @@ app.get("/",async(req,res)=> {
         edit : req.query.edit,
         lien_page : new Array(),
         commentaires : new Array(),
-        upvote : req.query.upvote,
-        downvote : req.query.downvote,
         comment_id : req.query.comment_id,
+        lien_24heures : new Array(),
     }
 
-    if (data.link_id){
+    if (data.sujet == "link"){
       data.lien_page = await db.all(`
         SELECT *, log_name FROM links
-        LEFT JOIN logs ON links.log_link = logs.log_id
-        WHERE link_id = ?
-      `,[data.link_id])
+        LEFT JOIN logs ON links.log_link = logs.log_id    --Liens utilisateur
+        LEFT JOIN coms ON links.log_link = coms.log_com   --Liens où il a commenté
+        LEFT JOIN votes ON links.log_link = votes.log_vote    --Liens où il a voté
+        WHERE link_id = ? OR log_com = ? OR log_vote = ?
+      `,[data.link_id, data.link_id, data.link_id])
 
       data.commentaires[0] = await db.all(`
         SELECT *, log_name FROM coms
@@ -92,6 +93,14 @@ app.get("/",async(req,res)=> {
           data.lien_page[i].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
       }
     }
+
+    data.lien_24heures = await db.all(`
+      SELECT *, log_name FROM links
+      LEFT JOIN logs ON links.log_link = logs.log_id
+      WHERE (link_date + 24*3600*1000) > ?  
+      ORDER BY nb_upvote_link DESC LIMIT 10
+    `,[Date.now()])
+
     res.render("projet",data)
 });
 
@@ -211,16 +220,17 @@ app.get("/edit",async(req,res)=> {
     type_edition : req.query.type_edition,
     link_id : req.query.link_id,
   }
-  if (data.type_edition == 2){
-    const db = await openDb()
-    await db.run(`
-      DELETE FROM coms
-      WHERE com_id = ?
-    `[data.com_id])
 
-    console.log("On enlève le commentaire numéro com_id de la Database")
+  if (data.type_edition == 2){
+      const db = await openDb()
+      await db.run(`
+        DELETE FROM coms
+        WHERE com_id = ?
+      `,[data.com_id])
+    }
+    
     res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
-  }
+
   if (data.type_edition == 1){
     console.log("On Supprime carrément le lien")
     res.redirect("/")
@@ -244,6 +254,56 @@ app.post("/edit",async(req,res)=> {
   res.redirect("/?sujet=link&link_id="+data.link+"&edit=1")
 });
 
+app.get("/vote",async(req,res)=> {
+  const data = {
+    session : req.session.user_id,
+    upvote : req.query.upvote,
+    downvote : req.query.downvote,
+    link_id : req.query.link_id,
+    com_id : req.query.comment_id,
+    sujet : req.query.sujet,
+  }
+  const db = await openDb()
+
+  if(data.upvote){    //upvote
+    if(!data.com_id & data.link_id){    //upvote sur un lien
+      const verif_up_lien = await db.all(`
+        SELECT *, nb_upvote_link FROM votes
+        LEFT JOIN links ON votes.link_vote = links.link_id  
+        WHERE log_vote = ? AND link_vote = ? 
+      `,[data.session, data.link_id])
+  
+    if(verif_up_lien.length==0){   //pas upvoté
+      await db.run(`
+        INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
+      `,["upvote",Date.now(),data.session,data.link_id,0])  
+      await db.run(`
+        UPDATE links
+        SET nb_upvote_link = ?
+        WHERE link_id = ?
+      `,[verif_up_lien.nb_upvote_link+1,data.link_id]) 
+    }
+    else                          //déjà upvoté
+      await db.run(`
+        DELETE FROM votes
+        WHERE log_vote = ? AND link_vote = ?
+      `,[data.session,data.link_id])  
+    }
+    
+
+    /*if(verif){
+      await db.run(`
+        UPDATE
+      `)
+    }*/
+  }
+
+  if(data.sujet == "link")
+    res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id)
+  else
+    res.redirect("/?sujet="+data.sujet)
+});
+
 app.post("/add_link",async(req,res)=> {
   const data = {
     lien : req.body.lien,
@@ -258,8 +318,8 @@ app.post("/add_link",async(req,res)=> {
       // Ajout du lien à la database des liens partagés
       const db = await openDb()
       await db.run(`
-        INSERT INTO links(name, content_link, log_link, nb_upvote_link, nb_downvote_link) VALUES(?,?,?,?,?)
-    `,[data.lien,data.description,req.session.user_id,0,0])
+        INSERT INTO links(name, content_link, log_link, nb_upvote_link, nb_downvote_link, link_date) VALUES(?,?,?,?,?,?)
+    `,[data.lien,data.description,req.session.user_id,0,0,Date.now()])
 
       res.redirect("/?lien_envoi=1")
     }  
@@ -282,8 +342,8 @@ app.post("/add_comment",async(req,res)=> {
   else{
     const db = await openDb()
     await db.run(`
-      INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com) VALUES(?, ?, ?, ?, ?)
-  `,[data.commentaire,0,0,data.link_id,req.session.user_id])
+      INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com, com_date) VALUES(?, ?, ?, ?, ?, ?)
+  `,[data.commentaire,0,0,data.link_id,req.session.user_id,Date.now()])
 
     res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id+"&lien_envoi=5")
   }  

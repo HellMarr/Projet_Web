@@ -82,6 +82,7 @@ async function createLogs(db){
             name varchar(255),
             nb_upvote_link int,
             nb_downvote_link int,
+            link_date int DEFAULT(0),
             log_link int,  --To know who posted this link
             FOREIGN KEY(log_link) REFERENCES logs(log_id)
           )
@@ -92,6 +93,7 @@ async function createLogs(db){
             content_com text,
             nb_upvote_com int,
             nb_downvote_com int,
+            com_date int DEFAULT(0),
             link_com int, --To know the link the com is on
             log_com int, --To know who posted this com 
             FOREIGN KEY(link_com) REFERENCES links(link_id),
@@ -102,6 +104,7 @@ async function createLogs(db){
         CREATE TABLE IF NOT EXISTS votes(  
             vote_id INTEGER PRIMARY KEY,
             type_vote varchar(255), --upvote or downvote
+            vote_date int DEFAULT(0),
             log_vote int,  --To know who is the owner of this vote
             link_vote int, --0 if the vote is on a com 
             com_vote int,  --0 if the vote is on a link
