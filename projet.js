@@ -57,21 +57,41 @@ app.get("/",async(req,res)=> {
         comment_id : req.query.comment_id,
         lien_24heures : new Array(),
         lien_all_time : new Array(),
+        last_session : new Array(),
+        nouveaux : new Array(),
     }
+    
+    //Récupération de la date de dernière connexion de l'utilisateur
+    data.last_session = await db.get(`
+      SELECT last_session FROM logs
+      WHERE log_id = ?
+    `,[data.session])
+
+    //On prend tout les liens ou il y a eu des nouvelles intéraction et ou il avait intéragit.
+    data.nouveaux = await db.all(`
+      SELECT * FROM links,coms,votes
+      WHERE link_date > ? OR vote_date > ? OR com_date > ?
+    `,[1,1,1])
+    console.log(data.nouveaux)
+
 
     //Page d'un lien
     if (data.sujet == "link"){
       data.lien_page = await db.all(`
-        SELECT *, log_name FROM links
-        LEFT JOIN logs ON links.log_link = logs.log_id
-        WHERE log_link = ?
+        SELECT * FROM links
+        WHERE link_id = ?
       `,[data.link_id])
 
       data.commentaires[0] = await db.all(`
-        SELECT *, log_name FROM coms
+        SELECT * FROM coms
         LEFT JOIN logs ON coms.log_com = logs.log_id
         WHERE link_com = ?
       `,[data.lien_page[0].link_id])
+
+      /*console.log(data.lien_page)
+      console.log(data.lien_page[0])
+      console.log(data.lien_page.link_id)
+      console.log(data.lien_page[0].link_id)*/
 
       data.upvotes_link[0] = await db.all(`    
         SELECT * FROM votes  
@@ -83,7 +103,7 @@ app.get("/",async(req,res)=> {
         WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
       `,[data.session, data.link_id,-1])
 
-      for(let j=0;j<data.commentaires.length;j++){
+      for(let j=0;j<data.commentaires[0].length;j++){
         data.upvotes_com[j] = new Array()
         data.upvotes_com[j] = await db.all(`    
           SELECT * FROM votes  
@@ -91,37 +111,49 @@ app.get("/",async(req,res)=> {
         `,[data.session, data.commentaires[0][j].com_id,1])
 
         data.downvotes_com[j] = new Array()
-        data.downvotes_link[j] = await db.all(`    
+        data.downvotes_com[j] = await db.all(`    
           SELECT * FROM votes  
           WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
         `,[data.session, data.commentaires[0][j].com_id,-1])
       }
 
+      console.log(data.upvotes_com)
+      console.log(data.downvotes_com)
+
       if(data.commentaires[0].length==0)
           data.lien_page[0].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
 
       //Gestion des boutons de likes
+      //Liens
       if(data.upvotes_link[0].length==0)
           data.lien_page[0].nb_up_link=0 
       if(data.downvotes_link[0].length==0)
           data.lien_page[0].nb_down_link=0 
+
+      //Commentaires
+      for(let k=0; k<data.commentaires[0].length; k++){
+        if(data.upvotes_com[k].length==0)
+          data.commentaires[0][k].nb_up_com=0 
+        if(data.downvotes_com[k].length==0)
+          data.commentaires[0][k].nb_down_com=0 
+
+          console.log(data.commentaires[0][k])
+      }
     }
     
     //Page de profil
     if (data.sujet == "mes_liens"){   //Liens avec lesquels l'utilisateur a interagi
       data.lien_page = await db.all(`
-        SELECT *, log_name FROM links
-        LEFT JOIN logs ON links.log_link = logs.log_id    --Liens utilisateur
-        LEFT JOIN coms ON links.log_link = coms.log_com   --Liens où il a commenté
-        LEFT JOIN votes ON links.log_link = votes.log_vote    --Liens où il a voté
-        WHERE link_id = ? OR log_com = ? OR log_vote = ?
-      `,[data.session,data.session,data.session])
+        SELECT * FROM links
+        LEFT JOIN logs ON links.log_link = logs.log_id    
+        WHERE log_link = ? 
+      `,[data.session])
 
 
       for(let i=0; i<data.lien_page.length; i++){
         data.commentaires[i] = new Array()
         data.commentaires[i] = await db.all(`
-          SELECT *, log_name FROM coms
+          SELECT * FROM coms
           LEFT JOIN logs ON coms.log_com = logs.log_id
           WHERE link_com = ?
         `,[data.lien_page[i].link_id])
@@ -294,16 +326,44 @@ app.get("/edit",async(req,res)=> {
         DELETE FROM coms
         WHERE com_id = ?
       `,[data.com_id])
-    }
     
-    res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
+      res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
+    }
 
   if (data.type_edition == 1){
-    console.log("On Supprime carrément le lien")
+    const db = await openDb()
+
+    await db.run(`
+      DELETE FROM votes
+      WHERE link_vote = ? 
+    `,[data.link_id])
+
+    const commentaire_id = await db.get(`
+      SELECT com_id FROM coms
+      WHERE link_com = ?
+    `,[data.link_id])
+
+    for (let i=0; i<commentaire_id.length; i ++){
+      await db.run(`
+        DELETE FROM votes
+        WHERE com_vote = ? 
+      `,[data.commentaire_id[i].com_id])
+    }
+
+    await db.run(`
+      DELETE FROM coms
+      WHERE link_com = ?
+    `,[data.link_id])
+
+    await db.run(`
+      DELETE FROM links
+      WHERE link_id = ?
+    `,[data.link_id])
+    
     res.redirect("/")
   }
-
 });
+
 
 app.post("/edit",async(req,res)=> {
   const data = {
@@ -586,7 +646,7 @@ app.post("/add_link",async(req,res)=> {
       // Ajout du lien à la database des liens partagés
       const db = await openDb()
       await db.run(`
-        INSERT INTO links(name, content_link, log_link, nb_upvote_link, nb_downvote_link, link_date,) VALUES(?,?,?,?,?,?)
+        INSERT INTO links(name, content_link, log_link, nb_upvote_link, nb_downvote_link, link_date) VALUES(?,?,?,?,?,?)
     `,[data.lien,data.description,req.session.user_id,0,0,Date.now()])
 
       res.redirect("/?lien_envoi=1")
