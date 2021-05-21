@@ -23,18 +23,18 @@ async function createLogs(db){
   }
   
   async function createLinks(db){
-    const insertRequest = await db.prepare("INSERT INTO links(name, content_link, nb_upvote_link, nb_downvote_link, log_link,nb_commentaire_link) VALUES(?,?,?,?,?,?)")
+    const insertRequest = await db.prepare("INSERT INTO links(name, content_link, nb_upvote_link, nb_downvote_link, nb_commentaire_link, log_link) VALUES(?,?,?,?,?,?)")
     const contents = [{
       name: "http://google.fr",
       content_link: "Voici mon 1er lien",
       nb_upvote_link: 0,
       nb_downvote_link: 0,
+      nb_commentaire_link : 1,
       log_link: 1,
-      nb_commentaire_link: 1
     }
     ]
     return await Promise.all(contents.map(links => {
-      return insertRequest.run([links.name, links.content_link, links.nb_upvote_link, links.nb_downvote_link, links.log_link, links.nb_commentaire_link])
+      return insertRequest.run([links.name, links.content_link, links.nb_upvote_link, links.nb_downvote_link, links.nb_commentaire_link, links.log_link])
     }))
   }
   

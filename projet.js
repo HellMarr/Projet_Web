@@ -48,51 +48,39 @@ app.get("/",async(req,res)=> {
         lien_envoi : req.query.lien_envoi,
         link_id : req.query.link_id,
         edit : req.query.edit,
-        lien_page : new Array(),
-        commentaires : new Array(),
-        upvotes_link : new Array(),
-        downvotes_link : new Array(),
-        upvotes_com : new Array(),
-        downvotes_com : new Array(),
+        lien_page : new Array(),      //contient le ou les liens
+        commentaires : new Array(),   //contient les coms s'il y en a 
+        upvotes_link : new Array(),   //vérif pour flèche
+        downvotes_link : new Array(), //vérif pour flèche 
+        upvotes_com : new Array(),    //vérif pour flèche 
+        downvotes_com : new Array(),  //vérif pour flèche
         comment_id : req.query.comment_id,
         lien_24heures : new Array(),
         lien_all_time : new Array(),
-        last_session : new Array(),
+        last_sess : new Array(),
         nouveaux : new Array(),
     }
-    
-    //Récupération de la date de dernière connexion de l'utilisateur
-    data.last_session = await db.get(`
-      SELECT last_session FROM logs
-      WHERE log_id = ?
-    `,[data.session])
-
-    //On prend tout les liens ou il y a eu des nouvelles intéraction et ou il avait intéragit.
-    data.nouveaux = await db.all(`
-      SELECT * FROM links,coms,votes
-      WHERE link_date > ? OR vote_date > ? OR com_date > ?
-    `,[1,1,1])
-    console.log(data.nouveaux)
-
+    //Page d'un lien et page de profil
 
     //Page d'un lien
-    if (data.sujet == "link"){
+    if (data.sujet == "link"){    //récup lien
       data.lien_page = await db.all(`
         SELECT * FROM links
+        LEFT JOIN logs ON links.log_link = logs.log_id
         WHERE link_id = ?
       `,[data.link_id])
 
-      data.commentaires[0] = await db.all(`
+      //recup coms lien
+      data.commentaires = await db.all(`
         SELECT * FROM coms
         LEFT JOIN logs ON coms.log_com = logs.log_id
         WHERE link_com = ?
       `,[data.lien_page[0].link_id])
+      
+      data.commentaires = data.commentaires.reverse() //ORDER BY ne marchant pas on fait l'antichronologie ainsi
+      
 
-      /*console.log(data.lien_page)
-      console.log(data.lien_page[0])
-      console.log(data.lien_page.link_id)
-      console.log(data.lien_page[0].link_id)*/
-
+      //recup pour la verif des votes lien (utile pour flèches)
       data.upvotes_link[0] = await db.all(`    
         SELECT * FROM votes  
         WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
@@ -103,24 +91,20 @@ app.get("/",async(req,res)=> {
         WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
       `,[data.session, data.link_id,-1])
 
-      for(let j=0;j<data.commentaires[0].length;j++){
-        data.upvotes_com[j] = new Array()
+      //recup pour la verif des votes coms (utile pour flèches)
+      for(let j=0; j<data.commentaires.length; j++){
         data.upvotes_com[j] = await db.all(`    
           SELECT * FROM votes  
           WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
-        `,[data.session, data.commentaires[0][j].com_id,1])
+        `,[data.session, data.commentaires[j].com_id,1])
 
-        data.downvotes_com[j] = new Array()
         data.downvotes_com[j] = await db.all(`    
           SELECT * FROM votes  
-          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
-        `,[data.session, data.commentaires[0][j].com_id,-1])
+          WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+        `,[data.session, data.commentaires[j].com_id,-1])
       }
 
-      console.log(data.upvotes_com)
-      console.log(data.downvotes_com)
-
-      if(data.commentaires[0].length==0)
+      if(data.commentaires.length==0)
           data.lien_page[0].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
 
       //Gestion des boutons de likes
@@ -131,69 +115,108 @@ app.get("/",async(req,res)=> {
           data.lien_page[0].nb_down_link=0 
 
       //Commentaires
-      for(let k=0; k<data.commentaires[0].length; k++){
+      for(let k=0; k<data.commentaires.length; k++){
         if(data.upvotes_com[k].length==0)
-          data.commentaires[0][k].nb_up_com=0 
+          data.commentaires[k].nb_up_com=0 
         if(data.downvotes_com[k].length==0)
-          data.commentaires[0][k].nb_down_com=0 
-
-          console.log(data.commentaires[0][k])
+          data.commentaires[k].nb_down_com=0 
       }
     }
+
     
     //Page de profil
-    if (data.sujet == "mes_liens"){   //Liens avec lesquels l'utilisateur a interagi
+    if (data.sujet == "mes_liens"){     //recup liens
       data.lien_page = await db.all(`
         SELECT * FROM links
         LEFT JOIN logs ON links.log_link = logs.log_id    
         WHERE log_link = ? 
       `,[data.session])
 
+      data.lien_page = data.lien_page.reverse() //ORDER BY ne marchant pas on fait l'antichronologie ainsi
 
+      //recup coms des liens
       for(let i=0; i<data.lien_page.length; i++){
-        data.commentaires[i] = new Array()
         data.commentaires[i] = await db.all(`
           SELECT * FROM coms
           LEFT JOIN logs ON coms.log_com = logs.log_id
           WHERE link_com = ?
         `,[data.lien_page[i].link_id])
 
-        data.upvotes_link[i] = new Array()
+        data.commentaires[i] = data.commentaires[i].reverse() //ORDER BY ne marchant pas on fait l'antichronologie ainsi
+
+        //recup pour la verif des votes liens (utile pour flèches)
         data.upvotes_link[i] = await db.all(`    
           SELECT * FROM votes  
           WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
-      `,[data.session, data.lien_page[i].link_id,1])
+        `,[data.session, data.lien_page[i].link_id,1])
 
-        data.downvotes_link[i] = new Array()
         data.downvotes_link[i] = await db.all(`    
           SELECT * FROM votes  
           WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
-      `,[data.session, data.lien_page[i].link_id,-1])
+        `,[data.session, data.lien_page[i].link_id,-1])
+
+        //recup pour la verif des votes coms (utile pour flèches)
+        data.upvotes_com[i] = new Array()
+        data.downvotes_com[i] = new Array()
+        for(let j=0;j<data.commentaires[i].length;j++){
+          data.upvotes_com[i][j] = await db.all(`    
+            SELECT * FROM votes  
+            WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+          `,[data.session, data.commentaires[i][j].com_id,1])
+
+          data.downvotes_com[i][j] = await db.all(`    
+            SELECT * FROM votes  
+            WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+          `,[data.session, data.commentaires[i][j].com_id,-1])
+        }
 
         if(data.commentaires[i].length==0)
           data.lien_page[i].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
 
         //Gestion des boutons de likes
+        //Commentaires
         if(data.upvotes_link[i].length==0)
           data.lien_page[i].nb_up_link=0 
         if(data.downvotes_link[i].length==0)
           data.lien_page[i].nb_down_link=0 
+        
+        //Commentaires
+        for(let k=0; k<data.commentaires[i].length; k++){
+          if(data.upvotes_com[i][k].length==0)
+            data.commentaires[i][k].nb_up_com=0 
+          if(data.downvotes_com[i][k].length==0)
+            data.commentaires[i][k].nb_down_com=0 
+        }
       }
     }
 
+    //Page d'acceuil
+
+    //Récupération de la date de dernière connexion de l'utilisateur
+        data.last_sess = await db.get(`
+          SELECT last_session FROM logs
+          WHERE log_id = ?
+        `,[data.session])
+
+    //On prend tous les liens où il y a eu de nouvelles intéractions et où il avait intéragi
+      data.nouveaux = await db.all(`
+        SELECT * FROM links
+        WHERE link_date > ? 
+      `,[Date.now()-24*3600*1000])
+
     data.lien_24heures = await db.all(`
-      SELECT *, log_name FROM links
+      SELECT * FROM links
       LEFT JOIN logs ON links.log_link = logs.log_id
-      WHERE (link_date + 24*3600*1000) >= ?  
+      WHERE link_date > ?  
       ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
-    `,[Date.now()])
+    `,[Date.now()-24*3600*1000])
 
     data.lien_all_time = await db.all(`
-      SELECT *, log_name FROM links
+      SELECT * FROM links
       LEFT JOIN logs ON links.log_link = logs.log_id
-      WHERE (link_date + 24*3600*1000) >= 0 
       ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
     `)
+
     res.render("projet",data)
 });
 
@@ -320,17 +343,34 @@ app.get("/edit",async(req,res)=> {
     link_id : req.query.link_id,
   }
 
-  if (data.type_edition == 2){
-      const db = await openDb()
-      await db.run(`
-        DELETE FROM coms
-        WHERE com_id = ?
-      `,[data.com_id])
-    
-      res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
-    }
+  if (data.type_edition == 2){    //Suppression commentaire
+    const db = await openDb()
 
-  if (data.type_edition == 1){
+    await db.run(`
+      DELETE FROM votes
+      WHERE com_vote = ?
+    `,[data.com_id])
+
+    const nb_com = await db.get(`
+      SELECT nb_commentaire_link FROM links
+      WHERE link_id = ?
+    `,[data.link_id])
+
+    await db.run(`
+      UPDATE links
+      SET nb_commentaire_link = ?
+      WHERE link_id = ?
+    `[nb_com.nb_commentaire_link-1,data.link_id])
+
+    await db.run(`
+      DELETE FROM coms
+      WHERE com_id = ?
+    `,[data.com_id])
+  
+    res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
+  }
+
+  if (data.type_edition == 1){    //Suppression lien
     const db = await openDb()
 
     await db.run(`
@@ -343,11 +383,13 @@ app.get("/edit",async(req,res)=> {
       WHERE link_com = ?
     `,[data.link_id])
 
-    for (let i=0; i<commentaire_id.length; i ++){
-      await db.run(`
-        DELETE FROM votes
-        WHERE com_vote = ? 
-      `,[data.commentaire_id[i].com_id])
+    if(commentaire_id){
+      for (let i=0; i<commentaire_id.length; i ++){
+        await db.run(`
+          DELETE FROM votes
+          WHERE com_vote = ? 
+        `,[data.commentaire_id[i].com_id])
+      }
     }
 
     await db.run(`
@@ -669,15 +711,21 @@ app.post("/add_comment",async(req,res)=> {
 
   else{
     const db = await openDb()
-    await db.run(`
-      INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com, com_date) VALUES(?, ?, ?, ?, ?, ?)
-  `,[data.commentaire,0,0,data.link_id,req.session.user_id,Date.now()])
-
-    db.run(`
-      UPDATE links
-      SET nb_commentaire_link = nb_commentaire_link + 1
+    const nb_com = await db.get(`
+      SELECT nb_commentaire_link FROM links
       WHERE link_id = ?
     `,[data.link_id])
+
+    await db.run(`
+      INSERT INTO coms(content_com, nb_upvote_com, nb_downvote_com, link_com, log_com, com_date) VALUES(?, ?, ?, ?, ?, ?)
+    `,[data.commentaire,0,0,data.link_id,req.session.user_id,Date.now()])
+    
+    await db.run(`
+      UPDATE links
+      SET nb_commentaire_link = ?
+      WHERE link_id = ?
+    `,[nb_com.nb_commentaire_link+1,data.link_id])
+
     res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id+"&lien_envoi=5")
   }  
 });
