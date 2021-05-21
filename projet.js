@@ -58,7 +58,8 @@ app.get("/",async(req,res)=> {
         lien_24heures : new Array(),
         lien_all_time : new Array(),
         last_session : new Array(),
-        nouveaux : new Array(),
+        nouveaux_votes : new Array(),
+        nouveaux_coms : new Array(),
     }
     
     //Récupération de la date de dernière connexion de l'utilisateur
@@ -67,12 +68,19 @@ app.get("/",async(req,res)=> {
       WHERE log_id = ?
     `,[data.session])
 
-    //On prend tout les liens ou il y a eu des nouvelles intéraction et ou il avait intéragit.
-    data.nouveaux = await db.all(`
-      SELECT * FROM links,coms,votes
-      WHERE link_date > ? OR vote_date > ? OR com_date > ?
-    `,[1,1,1])
-    console.log(data.nouveaux)
+    //On prend tout les liens ou il y a eu des nouveaux votes et ou il avait intéragit.
+    data.nouveaux_votes = await db.all(`
+      SELECT * FROM votes,links
+      WHERE link_date > ? OR vote_date > ?
+    `,[1,1])
+    //console.log(data.nouveaux_votes)
+
+    //On prend tout les liens ou il y a eu des nouveaux commentaires et ou il avait intéragit.
+    data.nouveaux_coms = await db.all(`
+      SELECT * FROM coms,links
+      WHERE link_date > ? OR com_date > ?
+    `,[1,1])
+
 
 
     //Page d'un lien
@@ -343,13 +351,14 @@ app.get("/edit",async(req,res)=> {
       WHERE link_com = ?
     `,[data.link_id])
 
-    for (let i=0; i<commentaire_id.length; i ++){
-      await db.run(`
-        DELETE FROM votes
-        WHERE com_vote = ? 
-      `,[data.commentaire_id[i].com_id])
+    if(commentaire_id){
+      for (let i=0; i<commentaire_id.length; i ++){
+        await db.run(`
+          DELETE FROM votes
+          WHERE com_vote = ? 
+        `,[data.commentaire_id[i].com_id])
+      }
     }
-
     await db.run(`
       DELETE FROM coms
       WHERE link_com = ?

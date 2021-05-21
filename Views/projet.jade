@@ -69,16 +69,42 @@ html(lang="en")
                             .panel-success.panel-default
                                 .panel-heading.text-center
                                     text Nouveautés
-                            div=last_session.last_session
-                            div Section résumant les nouveautés depuis sa dernière connexion pour les liens ou il avait interagi dans les dernière 24h 
+                                .panel-body.text-center
+                                    div Section résumant les nouveautés depuis sa dernière connexion pour les liens ou il avait interagi dans les dernière 24h 
                             br
-                            each liens in nouveaux
-                                .panel.panel-default
-                                    .panel-heading.text-center
-                                        a(href="/?sujet=link&link_id="+liens.link_id) 
-                                            div=liens.name
-                                    .panel-body.text-center 
-                                        div=liens.nb_commentaire_link + " commentaires et "+liens.nb_upvote_link +" upvotes."
+                            .panel-success.panel-default
+                                .panel-heading.text-center
+                                    text nouveaux votes
+                            br
+                            each liens in nouveaux_votes
+                                if(liens.log_vote == session || liens.log_link == session)
+                                    if (liens.link_date > 0)
+                                        if (liens.vote_date > last_session.last_session && last_session.last_session > 0)
+                                            if (liens.link_vote != 0)
+                                                .panel.panel-default
+                                                    .panel-heading.text-center
+                                                        text="nouveau vote sur le lien "
+                                                        a(href="/?sujet=link&link_id="+liens.link_id) 
+                                                            div=liens.name
+                                            else if (liens.com_vote != 0)
+                                                .panel.panel-default
+                                                    .panel-heading.text-center
+                                                        text="nouveau vote sur un commentaire du lien "
+                                                        a(href="/?sujet=link&link_id="+liens.link_id) 
+                                                            div=liens.name
+                            .panel-success.panel-default
+                                .panel-heading.text-center
+                                    text nouveaux commentaires
+                            br
+                            each liens in nouveaux_coms
+                                if(liens.log_com == session || liens.log_link == session)
+                                    if (liens.link_date > 0)
+                                        if (liens.com_date > last_session.last_session && last_session.last_session > 0)
+                                                .panel.panel-default
+                                                    .panel-heading.text-center
+                                                        text="nouveau commentaire sur le lien "
+                                                        a(href="/?sujet=link&link_id="+liens.link_id) 
+                                                            div=liens.name
                     .col-md-2.col-sm-6.col-xs-12   
                         if (sujet != "mes_liens" && sujet != "link")
                             a(href= "/?sujet=mes_liens")
