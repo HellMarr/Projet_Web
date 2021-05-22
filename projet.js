@@ -1,5 +1,3 @@
-//Code js
-
 const express = require('express');
 const app = express()
 const port = 4000
@@ -61,21 +59,36 @@ app.get("/",async(req,res)=> {
         nouveaux_votes : new Array(),
         nouveaux_coms : new Array(),
     }
-    
+
+    //Page d'acceuil
+
+    data.lien_24heures = await db.all(`
+      SELECT * FROM links
+      LEFT JOIN logs ON links.log_link = logs.log_id
+      WHERE link_date > ?  
+      ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
+    `,[Date.now()-24*3600*1000])
+
+    data.lien_all_time = await db.all(`
+      SELECT * FROM links
+      LEFT JOIN logs ON links.log_link = logs.log_id
+      ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
+    `)
+
     //Récupération de la date de dernière connexion de l'utilisateur
     data.last_session = await db.get(`
       SELECT last_session FROM logs
       WHERE log_id = ?
     `,[data.session])
 
-    //On prend tout les liens ou il y a eu des nouveaux votes et ou il avait intéragit.
+    //On prend tous les liens où il y a eu de nouveaux votes et où il avait intéragi
     data.nouveaux_votes = await db.all(`
       SELECT * FROM votes,links
       WHERE link_date > ? OR vote_date > ?
     `,[1,1])
     //console.log(data.nouveaux_votes)
 
-    //On prend tout les liens ou il y a eu des nouveaux commentaires et ou il avait intéragit.
+    //On prend tous les liens où il y a eu de nouveaux commentaires et où il avait intéragi
     data.nouveaux_coms = await db.all(`
       SELECT * FROM coms,links
       WHERE link_date > ? OR com_date > ?
@@ -210,34 +223,6 @@ app.get("/",async(req,res)=> {
         }
       }
     }
-
-    //Page d'acceuil
-
-    //Récupération de la date de dernière connexion de l'utilisateur
-        data.last_sess = await db.get(`
-          SELECT last_session FROM logs
-          WHERE log_id = ?
-        `,[data.session])
-
-    //On prend tous les liens où il y a eu de nouvelles intéractions et où il avait intéragi
-      data.nouveaux = await db.all(`
-        SELECT * FROM links
-        WHERE link_date > ? 
-      `,[Date.now()-24*3600*1000])
-
-    data.lien_24heures = await db.all(`
-      SELECT * FROM links
-      LEFT JOIN logs ON links.log_link = logs.log_id
-      WHERE link_date > ?  
-      ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
-    `,[Date.now()-24*3600*1000])
-
-    data.lien_all_time = await db.all(`
-      SELECT * FROM links
-      LEFT JOIN logs ON links.log_link = logs.log_id
-      ORDER BY nb_upvote_link + nb_commentaire_link DESC LIMIT 10
-    `)
-
     res.render("projet",data)
 });
 
@@ -369,8 +354,8 @@ app.get("/edit",async(req,res)=> {
 
     await db.run(`
       DELETE FROM votes
-      WHERE com_vote = ?
-    `,[data.com_id])
+      WHERE com_vote = ? AND log_vote = ?
+    `,[data.com_id,req.session.user_id])
 
     const nb_com = await db.get(`
       SELECT nb_commentaire_link FROM links
@@ -381,7 +366,7 @@ app.get("/edit",async(req,res)=> {
       UPDATE links
       SET nb_commentaire_link = ?
       WHERE link_id = ?
-    `[nb_com.nb_commentaire_link-1,data.link_id])
+    `,[nb_com.nb_commentaire_link-1,data.link_id])
 
     await db.run(`
       DELETE FROM coms
@@ -404,14 +389,14 @@ app.get("/edit",async(req,res)=> {
       WHERE link_com = ?
     `,[data.link_id])
 
-    if(commentaire_id){
-      for (let i=0; i<commentaire_id.length; i ++){
-        await db.run(`
-          DELETE FROM votes
-          WHERE com_vote = ? 
-        `,[data.commentaire_id[i].com_id])
-      }
+    //console.log(commentaire_id)
+    for (let i=0; i<commentaire_id.length; i++){
+      await db.run(`
+        DELETE FROM votes
+        WHERE com_vote = ? 
+      `,[commentaire_id[i].com_id])
     }
+
     await db.run(`
       DELETE FROM coms
       WHERE link_com = ?
@@ -422,7 +407,7 @@ app.get("/edit",async(req,res)=> {
       WHERE link_id = ?
     `,[data.link_id])
     
-    res.redirect("/")
+    res.redirect("/?sujet=mes_liens")
   }
 });
 

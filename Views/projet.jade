@@ -1,5 +1,3 @@
-//Code Jade
-
 doctype html
 html(lang="en")
   head
@@ -74,7 +72,7 @@ html(lang="en")
                             br
                             .panel-success.panel-default
                                 .panel-heading.text-center
-                                    text nouveaux votes
+                                    text Nouveaux votes
                             br
                             each liens in nouveaux_votes
                                 if(liens.log_vote == session || liens.log_link == session)
@@ -83,18 +81,18 @@ html(lang="en")
                                             if (liens.link_vote != 0)
                                                 .panel.panel-default
                                                     .panel-heading.text-center
-                                                        text="nouveau vote sur le lien "
+                                                        text="Nouveau vote sur le lien "
                                                         a(href="/?sujet=link&link_id="+liens.link_id) 
                                                             div=liens.name
                                             else if (liens.com_vote != 0)
                                                 .panel.panel-default
                                                     .panel-heading.text-center
-                                                        text="nouveau vote sur un commentaire du lien "
+                                                        text="Nouveau vote sur un commentaire du lien "
                                                         a(href="/?sujet=link&link_id="+liens.link_id) 
                                                             div=liens.name
                             .panel-success.panel-default
                                 .panel-heading.text-center
-                                    text nouveaux commentaires
+                                    text Nouveaux commentaires
                             br
                             each liens in nouveaux_coms
                                 if(liens.log_com == session || liens.log_link == session)
@@ -102,7 +100,7 @@ html(lang="en")
                                         if (liens.com_date > last_session.last_session && last_session.last_session > 0)
                                                 .panel.panel-default
                                                     .panel-heading.text-center
-                                                        text="nouveau commentaire sur le lien "
+                                                        text="Nouveau commentaire sur le lien "
                                                         a(href="/?sujet=link&link_id="+liens.link_id) 
                                                             div=liens.name
                     .col-md-2.col-sm-6.col-xs-12   
