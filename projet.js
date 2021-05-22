@@ -46,12 +46,20 @@ app.get("/",async(req,res)=> {
         lien_envoi : req.query.lien_envoi,
         link_id : req.query.link_id,
         edit : req.query.edit,
-        lien_page : new Array(),      //contient le ou les liens
+        lien_page : new Array(),      //contient le ou les liens 
         commentaires : new Array(),   //contient les coms s'il y en a 
         upvotes_link : new Array(),   //vérif pour flèche
         downvotes_link : new Array(), //vérif pour flèche 
         upvotes_com : new Array(),    //vérif pour flèche 
         downvotes_com : new Array(),  //vérif pour flèche
+        lien_interagi : new Array(),      //contient le ou les liens avec lesquels l'utilisateur a interagi
+        lien_interagi_com : new Array(),      //contient le ou les liens que l'utilisateur a commenté
+        lien_interagi_vote : new Array(),      //contient le ou les liens que l'utilisateur a voté
+        commentaires_inter : new Array(),   //contient les coms s'il y en a 
+        upvotes_link_inter : new Array(),   //vérif pour flèche
+        downvotes_link_inter : new Array(), //vérif pour flèche 
+        upvotes_com_inter : new Array(),    //vérif pour flèche 
+        downvotes_com_inter : new Array(),  //vérif pour flèche
         comment_id : req.query.comment_id,
         lien_24heures : new Array(),
         lien_all_time : new Array(),
@@ -100,7 +108,7 @@ app.get("/",async(req,res)=> {
       SELECT * FROM coms,links
       WHERE link_date > ? OR com_date > ?
     `,[1,1])
-    console.log(data.nouveaux_coms)
+    //console.log(data.nouveaux_coms)
 
 
     //Page d'un lien
@@ -166,6 +174,7 @@ app.get("/",async(req,res)=> {
 
     
     //Page de profil
+    //Mes liens partagés
     if (data.sujet == "mes_liens"){     //recup liens
       data.lien_page = await db.all(`
         SELECT * FROM links
@@ -227,6 +236,105 @@ app.get("/",async(req,res)=> {
             data.commentaires[i][k].nb_up_com=0 
           if(data.downvotes_com[i][k].length==0)
             data.commentaires[i][k].nb_down_com=0 
+        }
+      }
+
+      //Liens avec lesquels j'ai interagi
+      data.lien_interagi_vote = await db.all(`
+        SELECT * FROM votes  
+        LEFT JOIN links ON votes.link_vote = links.link_id
+        WHERE log_vote = ? AND link_vote > 0
+      `,[data.session])
+
+      data.lien_interagi_com = await db.all(`
+        SELECT * FROM coms   
+        LEFT JOIN links ON coms.link_com = links.link_id
+        WHERE log_com = ?
+      `,[data.session])
+
+      data.lien_interagi = data.lien_interagi_com.concat(data.lien_interagi_vote)
+
+      for(let l=0; l<data.lien_page.length; l++){   //On évite de mettre ses liens qu'il a aimé ou commenté
+        data.lien_interagi = data.lien_interagi.filter(item => item.link_id != data.lien_page[l].link_id)
+      }
+
+      //On évite les doublons
+      for(let l=0; l<data.lien_interagi.length; l++){   
+        for (let x=0; x<data.lien_interagi.length; x++) {
+          if((data.lien_interagi[l].link_id == data.lien_interagi[l].link_id) && (l !=x))
+            data.lien_interagi[l] = null
+        }
+      }
+
+      for(let l=0; l<data.lien_page.length; l++){   
+        data.lien_interagi = data.lien_interagi.filter(item => item != null)
+      }
+
+      //On récupère le pseudo des gens qui ont posté les liens
+      const owners_link = new Array()
+      for (let p=0; p<data.lien_interagi.length; p++) {
+        owners_link[p] = await db.all(`
+          SELECT link_id, log_name FROM links
+          LEFT JOIN logs ON links.log_link = logs.log_id
+          WHERE link_id = ?
+        `,[data.lien_interagi[p].link_id])
+        
+        data.lien_interagi[p].owner_link = owners_link[p][0].log_name
+      }
+      
+
+      //recup coms des liens
+      for(let i=0; i<data.lien_interagi.length; i++){
+        data.commentaires_inter[i] = await db.all(`
+          SELECT * FROM coms
+          LEFT JOIN logs ON coms.log_com = logs.log_id
+          WHERE link_com = ?
+        `,[data.lien_interagi[i].link_id])
+
+        data.commentaires_inter[i] = data.commentaires_inter[i].reverse() //ORDER BY ne marchant pas on fait l'antichronologie ainsi
+
+        //recup pour la verif des votes liens (utile pour flèches)
+        data.upvotes_link_inter[i] = await db.all(`    
+          SELECT * FROM votes  
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+        `,[data.session, data.lien_interagi[i].link_id,1])
+
+        data.downvotes_link_inter[i] = await db.all(`    
+          SELECT * FROM votes  
+          WHERE log_vote = ? AND link_vote = ? AND type_vote = ?
+        `,[data.session, data.lien_interagi[i].link_id,-1])
+
+        //recup pour la verif des votes coms (utile pour flèches)
+        data.upvotes_com_inter[i] = new Array()
+        data.downvotes_com_inter[i] = new Array()
+        for(let j=0;j<data.commentaires_inter[i].length;j++){
+          data.upvotes_com_inter[i][j] = await db.all(`    
+            SELECT * FROM votes  
+            WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+          `,[data.session, data.commentaires_inter[i][j].com_id,1])
+
+          data.downvotes_com_inter[i][j] = await db.all(`    
+            SELECT * FROM votes  
+            WHERE log_vote = ? AND com_vote = ? AND type_vote = ?
+          `,[data.session, data.commentaires_inter[i][j].com_id,-1])
+        }
+
+        if(data.commentaires_inter[i].length==0)
+          data.lien_interagi[i].nb_com_link=0   //Utile dans le cas où il n'y a aucun commentaire sur le lien
+
+        //Gestion des boutons de likes
+        //Commentaires
+        if(data.upvotes_link_inter[i].length==0)
+          data.lien_interagi[i].nb_up_link=0 
+        if(data.downvotes_link_inter[i].length==0)
+          data.lien_interagi[i].nb_down_link=0 
+        
+        //Commentaires
+        for(let k=0; k<data.commentaires_inter[i].length; k++){
+          if(data.upvotes_com_inter[i][k].length==0)
+            data.commentaires_inter[i][k].nb_up_com=0 
+          if(data.downvotes_com_inter[i][k].length==0)
+            data.commentaires_inter[i][k].nb_down_com=0 
         }
       }
     }
@@ -360,6 +468,7 @@ app.get("/edit",async(req,res)=> {
     com_id : req.query.comment_id,
     type_edition : req.query.type_edition,
     link_id : req.query.link_id,
+    edit : req.query.edit
   }
 
   if (data.type_edition == 2){    //Suppression commentaire
@@ -386,7 +495,7 @@ app.get("/edit",async(req,res)=> {
       WHERE com_id = ?
     `,[data.com_id])
   
-    res.redirect("/?sujet=link&link_id="+data.link_id+"&edit=1")
+    res.redirect("/?sujet=link&link_id="+data.link_id+"&edit="+data.edit)
   }
 
   if (data.type_edition == 1){    //Suppression lien
