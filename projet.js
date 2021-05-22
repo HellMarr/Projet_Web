@@ -55,6 +55,7 @@ app.get("/",async(req,res)=> {
         lien_interagi : new Array(),      //contient le ou les liens avec lesquels l'utilisateur a interagi
         lien_interagi_com : new Array(),      //contient le ou les liens que l'utilisateur a commenté
         lien_interagi_vote : new Array(),      //contient le ou les liens que l'utilisateur a voté
+        lien_favori : new Array(),          //contient le ou liens que l'utilisateur à placé en favori
         commentaires_inter : new Array(),   //contient les coms s'il y en a 
         upvotes_link_inter : new Array(),   //vérif pour flèche
         downvotes_link_inter : new Array(), //vérif pour flèche 
@@ -68,6 +69,13 @@ app.get("/",async(req,res)=> {
         nouveaux_votes : new Array(),
         nouveaux_coms : new Array(),
     }
+
+    //On créé un tableau avec les liens favoris
+    data.lien_favori = await db.all(`
+        SELECT * FROM links  
+        LEFT JOIN logs ON links.log_link = logs.log_id
+        WHERE favoris = 1
+      `,)
 
     //Page d'acceuil
 
@@ -857,6 +865,32 @@ app.post("/add_comment",async(req,res)=> {
     res.redirect("/?sujet="+data.sujet+"&link_id="+data.link_id+"&lien_envoi=5")
   }  
 });
+
+app.get("/add_favorite",async(req,res)=> {
+  const data = {
+    link_id : req.query.link_id,
+  }
+  const db = await openDb()
+  await db.run(`
+      UPDATE links
+      SET favoris = 1
+      WHERE link_id = ?
+    `,[data.link_id])
+  res.redirect("/?sujet=link&link_id="+data.link_id+"&lien_envoi=6")
+})
+
+app.get("/remove_favorite",async(req,res)=> {
+  const data = {
+    link_id : req.query.link_id,
+  }
+  const db = await openDb()
+  await db.run(`
+      UPDATE links
+      SET favoris = 0
+      WHERE link_id = ?
+    `,[data.link_id])
+  res.redirect("/?sujet=link&link_id="+data.link_id+"&lien_envoi=7")
+})
 
 app.listen(port,() => {
     console.log("Listening on port ", port)

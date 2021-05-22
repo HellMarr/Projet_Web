@@ -87,6 +87,7 @@ async function createLogs(db){
             nb_downvote_link int DEFAULT(0),
             link_date int DEFAULT(0),
             nb_commentaire_link int DEFAULT(0),
+            favoris array[1000] DEFAULT NULL,
             log_link int,  --To know who posted this link
             FOREIGN KEY(log_link) REFERENCES logs(log_id)
           )
