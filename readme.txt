@@ -3,12 +3,12 @@ Fonctionnalités
 -Liste des fonctionnalités implémentées: 
 
 Inscription d'un utilisateur en respectant les critères sur le pseudo, le mail et le mot de passe
-Connexion d'un utilisateur s'il adéjà un compte
+Connexion d'un utilisateur s'il a déjà un compte
 Possibilité de passer de la page de connexion à celle d'inscription et inversement
-Déconnexion possible à tout moment pour l'utilisateur une fois qu'il est connecté (bouton "déconnexion")
+Déconnexion possible à tout moment pour l'utilisateur une fois qu'il est connecté (bouton "déconnexion" en position fixé)
 
 Ajout d'un lien avec sa description (bouton "partager un lien")
-Suppression d'un lien qu'on a posté
+Suppression d'un lien que l'on a posté
 Modification de la description d'un lien qu'on a posté
 Visualisation d'un lien sur sa page avec ses votes ainsi que ses commentaires avec leurs votes
 
@@ -20,10 +20,20 @@ Visualisation du nombre de votes de chaque commentaires et chaque lien
 Ajout d'un commentaire sur un lien
 Suppression d'un commentaire qu'on a posté
 
-Page de profil pour chaque utilisateur (bouton "mon profil") où est affichée la totalité des liens, qu'a partagés l'utilisateur, ainsi que
+Page de profil pour chaque utilisateur (bouton "mon profil") où est affichée la totalité des liens qu'a partagés l'utilisateur, ainsi que
 leurs commentaires. L'affichage des liens et des commentaires se fait dans l'ordre anti-chronologique
  
 Page d'accueil 
+
+Colonne de gauche:
+Tendances 24 heures, avec les liens possédant le plus d'interactions (nombre de upvote + commentaires), maximum 10 dans cette colonne
+Tendances All-time, même chose, maximum 10 également
+
+Colonne de droite :
+Date de dernière connexion de l'utilisateur : OK
+Tableaux avec toutes les nouveautés : OK
+Affichage des nouveautés sur les posts avec lesquels on avait intéragit : OK
+Séparation en 2 type de nouveautés, votes et commentaires.
 
 -Liste des fonctionnalités non implémentées:
 

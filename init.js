@@ -74,7 +74,8 @@ async function createLogs(db){
         mail varchar(255),
         log_name varchar(255),
         pwd varchar(255),
-        last_session int DEFAULT(0)
+        last_session int DEFAULT(0),
+        current_session int DEFAULT(0)
       )
     `)
     const links = db.run(`

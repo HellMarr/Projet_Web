@@ -56,6 +56,7 @@ app.get("/",async(req,res)=> {
         lien_24heures : new Array(),
         lien_all_time : new Array(),
         last_session : new Array(),
+        current_session : new Array(),
         nouveaux_votes : new Array(),
         nouveaux_coms : new Array(),
     }
@@ -81,9 +82,15 @@ app.get("/",async(req,res)=> {
       WHERE log_id = ?
     `,[data.session])
 
+    //Récupération de la date de connexion de l'utilisateur
+    data.current_session = await db.get(`
+      SELECT current_session FROM logs
+      WHERE log_id = ?
+    `,[data.session])
+
     //On prend tous les liens où il y a eu de nouveaux votes et où il avait intéragi
     data.nouveaux_votes = await db.all(`
-      SELECT * FROM votes,links
+      SELECT * FROM votes,links,coms
       WHERE link_date > ? OR vote_date > ?
     `,[1,1])
     //console.log(data.nouveaux_votes)
@@ -93,7 +100,7 @@ app.get("/",async(req,res)=> {
       SELECT * FROM coms,links
       WHERE link_date > ? OR com_date > ?
     `,[1,1])
-
+    console.log(data.nouveaux_coms)
 
 
     //Page d'un lien
@@ -306,6 +313,12 @@ app.post("/register",async(req,res)=> {
         `,[data.email_register, data.name_register, data.password_register])
 
         req.session.user_id = mails.length+1    //numéro du dernier log_id qu'on vient d'ajouter
+        
+        db.run(`
+        UPDATE logs
+        SET current_session = ?
+        WHERE log_id = ?
+      `,[Date.now(),req.session.user_id])
 
         res.redirect("/")
       }
@@ -389,12 +402,13 @@ app.get("/edit",async(req,res)=> {
       WHERE link_com = ?
     `,[data.link_id])
 
-    //console.log(commentaire_id)
-    for (let i=0; i<commentaire_id.length; i++){
-      await db.run(`
-        DELETE FROM votes
-        WHERE com_vote = ? 
-      `,[commentaire_id[i].com_id])
+    if (data.commentaire_id){
+      for (let i=0; i<commentaire_id.length; i++){
+        await db.run(`
+          DELETE FROM votes
+          WHERE com_vote = ? 
+        `,[commentaire_id[i].com_id])
+      }
     }
 
     await db.run(`
