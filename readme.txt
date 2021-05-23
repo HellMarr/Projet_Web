@@ -10,13 +10,13 @@ Connexion d'un utilisateur s'il a déjà un compte
 Possibilité de passer de la page de connexion à celle d'inscription et inversement
 Déconnexion possible à tout moment pour l'utilisateur une fois qu'il est connecté (bouton "déconnexion" en position fixé)
 
-Ajout d'un lien avec sa description (bouton "partager un lien")
+Ajout d'un lien avec sa description (bouton "partager un lien")(le regex fait qu'on autorise seulement ce qui commence par http)
 Suppression d'un lien que l'on a posté
 Suppression des commentaires postés sur un lien qu'on a partagé (même ceux des autres car c'est notre lien donc on a le droit)
 Modification de la description d'un lien qu'on a posté
 Visualisation d'un lien sur sa page avec ses votes ainsi que ses commentaires avec leurs votes
 
-Ajout d'un upvote (flèche vers le haut) ou d'un downvote (flèche vers le bas) sur un commentaire ou un lien (bug un peu)
+Ajout d'un upvote (flèche vers le haut) ou d'un downvote (flèche vers le bas) sur un commentaire ou un lien 
 Possibilité de supprimer son vote ou de le changer pour le vote opposé
 Visualisation de son vote (flèche blanche: pas de vote, flèche orange: vote)
 Visualisation du nombre de votes de chaque commentaires et chaque lien
@@ -27,7 +27,7 @@ Suppression d'un commentaire qu'on a posté sur un lien
 Page de profil: 
 
 Pour chaque utilisateur (bouton "mon profil") est affiché la totalité des liens qu'il a partagé, ainsi que
-leurs commentaires. L'affichage des liens et des commentaires se fait dans l'ordre anti-chronologique
+leurs commentaires. L'affichage des liens et des commentaires se fait dans l'ordre anti-chronologique.
 Puis affichage des liens et commentaires des liens, que l'utilisateur a voté ou commenté (ces liens ne font pas apparaître les liens
 partagés par l'utilisateur qu'il a lui même voté ou commenté).
  
@@ -89,7 +89,7 @@ Les "/edit" permettent de gérer la suppresion d'un commentaire ou d'un lien par
 changer la description d'un lien que l'utilisateur a posté. A noter que cela peut aussi permettre à un utilisateur de supprimer
 des commentaires d'autres utilisateurs sur des liens qu'il a partagé.
 
-Le "/vote" permet (en théorie) de gérer l'affichage et le nombre de votes de tous le sliens et commentaires du site. Il permet 
+Le "/vote" permet de gérer l'affichage et le nombre de votes de tous le sliens et commentaires du site. Il permet 
 d'afficher seulement une flèche orange ou blanche (pour les upvotes et les dowvotes) et empêche les utilisateurs de upvoter et 
 downvoter.
 

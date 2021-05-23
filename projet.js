@@ -293,13 +293,13 @@ app.get("/",async(req,res)=> {
       //On évite les doublons
       for(let l=0; l<data.lien_interagi.length; l++){   
         for (let x=0; x<data.lien_interagi.length; x++) {
-          if((data.lien_interagi[l].link_id == data.lien_interagi[l].link_id) && (l !=x))
-            data.lien_interagi[l] = null
+            if((data.lien_interagi[l].link_id == data.lien_interagi[x].link_id) && (l !=x))
+              data.lien_interagi[l].link_id = 0
         }
       }
 
-      for(let l=0; l<data.lien_page.length; l++){   
-        data.lien_interagi = data.lien_interagi.filter(item => item != null)
+      for(let l=0; l<data.lien_interagi.length; l++){   
+        data.lien_interagi = data.lien_interagi.filter(item => item.link_id != 0)
       }
 
       //On récupère le pseudo des gens qui ont posté les liens
