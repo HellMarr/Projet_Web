@@ -33,6 +33,12 @@ app.set('view engine', 'jade');
 var compteur = 0 ;
 const {openDb} = require("./db");
 
+var Tableau_favoris = new Array(10).fill(0);
+for (var i = 0; i < 100; i++)
+{
+ Tableau_favoris[i] = new Array(100).fill(0);
+}
+
 app.get("/",async(req,res)=> {
     const db = await openDb()
 
@@ -71,13 +77,31 @@ app.get("/",async(req,res)=> {
     }
 
     //On créé un tableau avec les liens favoris
+    if(data.session != undefined){
+      for(let i=1; i<99; i++){
+        if(Tableau_favoris[data.session][i] == 1){
+          const db = await openDb()
+          db.run(`
+          UPDATE links
+          SET favoris = 1
+          WHERE link_id = ?
+            `,[i])
+        }
+        else {
+          db.run(`
+          UPDATE links
+          SET favoris = 0
+          WHERE link_id = ?
+            `,[i])
+        }
+      }
+    }
+    //Page d'acceuil
     data.lien_favori = await db.all(`
         SELECT * FROM links  
         LEFT JOIN logs ON links.log_link = logs.log_id
         WHERE favoris = 1
       `,)
-
-    //Page d'acceuil
 
     data.lien_24heures = await db.all(`
       SELECT * FROM links
@@ -870,12 +894,7 @@ app.get("/add_favorite",async(req,res)=> {
   const data = {
     link_id : req.query.link_id,
   }
-  const db = await openDb()
-  await db.run(`
-      UPDATE links
-      SET favoris = 1
-      WHERE link_id = ?
-    `,[data.link_id])
+  Tableau_favoris[req.session.user_id][data.link_id] = 1
   res.redirect("/?sujet=link&link_id="+data.link_id+"&lien_envoi=6")
 })
 
@@ -883,12 +902,7 @@ app.get("/remove_favorite",async(req,res)=> {
   const data = {
     link_id : req.query.link_id,
   }
-  const db = await openDb()
-  await db.run(`
-      UPDATE links
-      SET favoris = 0
-      WHERE link_id = ?
-    `,[data.link_id])
+  Tableau_favoris[req.session.user_id][data.link_id] = 0
   res.redirect("/?sujet=link&link_id="+data.link_id+"&lien_envoi=7")
 })
 

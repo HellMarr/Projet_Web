@@ -120,14 +120,16 @@ html(lang="en")
                         if (sujet == "mes_liens")
                             .panel-warning.panel-default
                                 .panel-heading.text-center
-                                        text LIENS FAVORIS (en construction)  
+                                        text LIENS FAVORIS  
                                         svg.bi.bi-shield-fill(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' viewBox='0 0 16 16')
                                             path(d='M5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z')
+                            br
                             each liens in lien_favori
                                 .panel.panel-default
                                             .panel-heading.text-center 
                                                 .row
                                                     .col-md-4.col-sm-6.col-xs-12
+                                                        p="Posté par "+liens.log_name
                                                     .col-md-4.col-sm-6.col-xs-12
                                                         p=liens.name
                                                     .col-md-4.col-sm-6.col-xs-12
@@ -136,63 +138,9 @@ html(lang="en")
                                                             svg.bi.bi-eye(xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='Black' viewBox='0 0 16 16')
                                                                 path(d='M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z')
                                                                 path(d='M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z')
-                                                br
-                                                span.badge.bg-secondary  
-                                                    a(href="/vote?sujet=mes_liens&link_id="+liens.link_id+"&upvote=1") 
-                                                        if(liens.nb_up_link==0)   
-                                                            svg.bi.bi-arrow-up-circle(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='White' viewBox='0 0 16 16')
-                                                                path(fill-rule='evenodd' d='M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z')
-                                                        else 
-                                                            svg.bi.bi-arrow-up-circle-fill(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='Orange' viewBox='0 0 16 16')
-                                                                path(d='M16 8A8 8 0 1 0 0 8a8 8 0 0 0 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z')
-                                                    text=liens.nb_upvote_link
-                                                span.badge.bg-secondary    
-                                                    a(href="/vote?sujet=mes_liens&link_id="+liens.link_id+"&downvote=1")    
-                                                        if(liens.nb_down_link==0)
-                                                            svg.bi.bi-arrow-down-circle(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='White' viewBox='0 0 16 16')
-                                                                path(fill-rule='evenodd' d='M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z')
-                                                        else     
-                                                            svg.bi.bi-arrow-down-circle-fill(xmlns='http://www.w3.org/2000/svg' width='40' height='40' fill='Orange' viewBox='0 0 16 16')
-                                                                path(d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z')
-                                                    text=liens.nb_downvote_link 
                                             .panel-body.text-center 
-                                                .row
-                                                    .col-md-4.col-sm-6.col-xs-12
-                                                    .col-md-4.col-sm-6.col-xs-12
-                                                        text
-                                                            u="Publié par " + liens.log_name + " :"
-                                                    .col-md-4.col-sm-6.col-xs-12
-                                                p=liens.content_link 
-                                            .panel-footer
-                                                if(liens.nb_com_link==0) 
-                                                    //-Pas encore de commentaires
-                                                    p="Aucun commentaire sur ce lien"
-                                                else 
-                                                    each coms in commentaires_inter 
-                                                            each com in coms
-                                                                if(com.link_com == liens.link_id)
-                                                                    div=com.log_name + " a écrit : " + com.content_com
-                                                                    span.badge.bg-secondary
-                                                                        a(href="/vote?sujet=mes_liens&link_id="+liens.link_id+"&comment_id="+com.com_id+"&upvote=1")    
-                                                                            if(com.nb_up_com==0)   
-                                                                                svg.bi.bi-arrow-up-circle(xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='White' viewBox='0 0 16 16')
-                                                                                    path(fill-rule='evenodd' d='M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z')
-                                                                            else
-                                                                                svg.bi.bi-arrow-up-circle-fill(xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='Orange' viewBox='0 0 16 16')
-                                                                                    path(d='M16 8A8 8 0 1 0 0 8a8 8 0 0 0 16 0zm-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z')
-                                                                        text=com.nb_upvote_com
-                                                                    span.badge.bg-secondary 
-                                                                        a(href="/vote?sujet=mes_liens&link_id="+liens.link_id+"&comment_id="+com.com_id+"&downvote=1")    
-                                                                            if(com.nb_down_com==0)   
-                                                                                svg.bi.bi-arrow-down-circle(xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='White' viewBox='0 0 16 16')
-                                                                                    path(fill-rule='evenodd' d='M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z')
-                                                                            else 
-                                                                                svg.bi.bi-arrow-down-circle-fill(xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='Orange' viewBox='0 0 16 16')
-                                                                                    path(d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z')
-                                                                        text=com.nb_downvote_com
-                                                                    br   
-                            br
-                            br
+                                                p=liens.content_link
+                                br
                             .panel-warning.panel-default
                                 .panel-heading.text-center 
                                     text TOUTES MES INTERACTIONS

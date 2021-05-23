@@ -1,5 +1,8 @@
 Fonctionnalités
 ---------------
+
+Notre site est un site OP (One Page), l'utilisateur se trouve toujours dans la page "/", seul les query changent.
+
 -Liste des fonctionnalités implémentées: 
 
 Inscription d'un utilisateur en respectant les critères sur le pseudo, le mail et le mot de passe
@@ -40,9 +43,11 @@ Tableaux avec toutes les nouveautés : OK
 Affichage des nouveautés sur les posts avec lesquels on avait intéragit : OK
 Séparation en 2 type de nouveautés, votes et commentaires.
 
+Favoris : fonctionnel, seul problème : nous ne somme pas passé par la database directement, donc en faisant node (en relançant le code), on ne se souvient plus des favoris des uns et des autres.
+
 -Liste des fonctionnalités non implémentées:
 
-Bonus
+Le reste des bonus
 
 Architecture
 ------------
@@ -92,3 +97,7 @@ Le "/add_link" permet de partager un lien en vérifiant que le lien partagé est
 description.
 
 Le "/add_comment" permet de poster un commentaire sur tous les liens du site quand on est sur la page du lien en question. 
+
+Le "/add_favorite" update la valeur du tableau "Tableau_favoris[log_id][link_id]" à 1 
+
+Le "/remove_favorite" update la valeur du tableau "Tableau_favoris[log_id][link_id]" à 0
