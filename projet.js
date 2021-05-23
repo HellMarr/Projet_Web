@@ -635,11 +635,9 @@ app.get("/vote",async(req,res)=> {
     SELECT nb_downvote_com FROM coms  
     WHERE com_id = ? 
   `,[data.com_id])
-
   if(data.upvote){    //upvote
-    if(!data.com_id & data.link_id){    //upvote sur un lien
-
-      if(verif_up_lien.length==0 & verif_down_lien.length==0){   //pas upvoté ni downvoté
+    if(!data.com_id && data.link_id){    //upvote sur un lien
+      if(verif_up_lien.length==0 && verif_down_lien.length==0){   //pas upvoté ni downvoté
         //Ajout upvote
         await db.run(`
           INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
@@ -650,7 +648,7 @@ app.get("/vote",async(req,res)=> {
           WHERE link_id = ?
         `,[nb_up_link.nb_upvote_link+1,data.link_id]) 
       }
-      else if(verif_up_lien.length==0 & verif_down_lien.length!=0){   //pas upvoté mais downvoté
+      else if(verif_up_lien.length==0 && verif_down_lien.length!=0){   //pas upvoté mais downvoté
         //Suppression downvote
         await db.run(`
           DELETE FROM votes
@@ -684,9 +682,9 @@ app.get("/vote",async(req,res)=> {
       }
     }
     
-    if(data.com_id & data.link_id){    //upvote sur un commentaire
+    if(data.com_id && data.link_id){    //upvote sur un commentaire
 
-      if(verif_up_com.length==0 & verif_down_com.length==0){   //pas upvoté ni downvoté
+      if(verif_up_com.length==0 && verif_down_com.length==0){   //pas upvoté ni downvoté
         //Ajout upvote
         await db.run(`
           INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
@@ -697,7 +695,7 @@ app.get("/vote",async(req,res)=> {
           WHERE com_id = ?
         `,[nb_up_com.nb_upvote_com+1,data.com_id]) 
       }
-      else if(verif_up_com.length==0 & verif_down_com.length!=0){   //pas upvoté mais downvoté
+      else if(verif_up_com.length==0 && verif_down_com.length!=0){   //pas upvoté mais downvoté
         //Suppression downvote
         await db.run(`
           DELETE FROM votes
@@ -733,9 +731,9 @@ app.get("/vote",async(req,res)=> {
   }
 
   if(data.downvote){    //downvote
-    if(!data.com_id & data.link_id){    //downvote sur un lien
+    if(!data.com_id && data.link_id){    //downvote sur un lien
 
-      if(verif_down_lien.length==0 & verif_up_lien.length==0){   //pas downvoté ni upvoté
+      if(verif_down_lien.length==0 && verif_up_lien.length==0){   //pas downvoté ni upvoté
         //Ajout downvote
         await db.run(`
           INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
@@ -746,7 +744,7 @@ app.get("/vote",async(req,res)=> {
           WHERE link_id = ?
         `,[nb_down_link.nb_downvote_link+1,data.link_id]) 
       }
-      else if(verif_down_lien.length==0 & verif_up_lien.length!=0){   //pas downvoté mais upvoté
+      else if(verif_down_lien.length==0 && verif_up_lien.length!=0){   //pas downvoté mais upvoté
         //Suppression upvote
         await db.run(`
           DELETE FROM votes
@@ -780,9 +778,9 @@ app.get("/vote",async(req,res)=> {
       }
     }
     
-    if(data.com_id & data.link_id){    //downvote sur un commentaire
+    if(data.com_id && data.link_id){    //downvote sur un commentaire
 
-      if(verif_down_com.length==0 & verif_up_com.length==0){   //pas downvoté ni upvoté
+      if(verif_down_com.length==0 && verif_up_com.length==0){   //pas downvoté ni upvoté
         //Ajout downvote
         await db.run(`
           INSERT INTO votes(type_vote, vote_date, log_vote, link_vote, com_vote) VALUES(?,?,?,?,?)
@@ -793,7 +791,7 @@ app.get("/vote",async(req,res)=> {
           WHERE com_id = ?
         `,[nb_down_com.nb_downvote_com+1,data.com_id]) 
       }
-      else if(verif_down_com.length==0 & verif_up_com.length!=0){   //pas downvoté mais upvoté
+      else if(verif_down_com.length==0 && verif_up_com.length!=0){   //pas downvoté mais upvoté
         //Suppression upvote
         await db.run(`
           DELETE FROM votes
